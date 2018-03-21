@@ -2,7 +2,7 @@
 #Author="LclMichael"
 
 def main():
-    print("hello")
+    print("hello use git ssh")
     pass
 
 if __name__ == '__main__':
