@@ -1,5 +1,5 @@
-#encoding="utf8"
-#Author="LclMichael"
+#encoding=utf8
+#Author=LclMichael
 
 
 if __name__ == '__main__':

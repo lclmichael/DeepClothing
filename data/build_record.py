@@ -1,5 +1,5 @@
-#encoding="utf8"
-#Author="LclMichael"
+#encoding=utf8
+#Author=LclMichael
 
 # 数据转换的基础类
 import tensorflow as tf

@@ -1,2 +1,2 @@
-#encoding="utf8"
-#Author="LclMichael"
+#encoding=utf8
+#Author=LclMichael
