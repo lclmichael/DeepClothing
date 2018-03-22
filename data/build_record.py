@@ -1,12 +1,17 @@
 #encoding=utf8
 #Author=LclMichael
 
-# 数据转换的基础类
-import tensorflow as tf
-import matplotlib.pyplot as plt
+import os
 import time
 import json
-import os
+import argparse
+
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+DEFAULT_OUTPUT_DIR = "./tfrecord/"
+
+DEFAULT_JSON_DIR = "./json/"
 
 image_dir = "E:/DataSet/DeepFashion/Category and Attribute Prediction Benchmark/Img/"
 
@@ -34,28 +39,28 @@ def decode_image(image_path, resize=[300, 300]):
 
 def build_tfrecord(output_file_path, data):
     with tf.python_io.TFRecordWriter(output_file_path) as writer, tf.Session() as sess:
-            count = 0
-            for json_obj in data:
-                image_path = os.path.join(image_dir, json_obj["path"])
-                category_num = json_obj["categoryNum"]
-                image = decode_image(image_path)
-                image =  image.eval()
-                image_raw = image.tostring()
-                example = tf.train.Example(
-                    features=tf.train.Features(
-                        feature={
-                            "image_raw":_bytes_feature(image_raw),
-                            "label":_int64_feature(category_num)
-                }))
-                writer.write(example.SerializeToString())
-                print("\r" + "success write records for " + str(count), end="")
-                if count > 99:
-                    break
+        count = 0
+        for json_obj in data:
+            image_path = os.path.join(image_dir, json_obj["path"])
+            category_num = json_obj["categoryNum"]
+            image = decode_image(image_path)
+            image =  image.eval()
+            image_raw = image.tostring()
+            example = tf.train.Example(
+                features=tf.train.Features(
+                    feature={
+                        "image_raw":_bytes_feature(image_raw),
+                        "label":_int64_feature(category_num)
+            }))
+            writer.write(example.SerializeToString())
+            print("\r" + "success write records for " + str(count), end="")
+            if count > 99:
+                break
 
-def build_all():
-    train_record_path = "./tfrecord/train.tfrecords"
-    validate_record_path = "./tfrecord/validate.tfrecords"
-    test_record_path = "./tfrecord/test.tfrecords"
+def build_all(output_dir = DEFAULT_OUTPUT_DIR):
+    train_record_path = output_dir + "train.tfrecords"
+    validate_record_path = output_dir + "validate.tfrecords"
+    test_record_path = output_dir + "test.tfrecords"
 
     train_json_path = "./json/image_label_train.json"
     validate_json_path = "./json/image_label_validate.json"
@@ -76,9 +81,21 @@ def build_all():
     cost_time = time.time() - start_time
     print("\n write tfrecords success, cost time: " + str(cost_time))
 
+def set_parser():
+    parser = argparse.ArgumentParser(description="this script build tfrecords data from json")
+    parser.add_argument("-o", action="store", default="./tfrecord/", help="output path for file")
+    parser.add_argument("-j", action="store", default="", help="base dir of json")
+    parser.add_argument("-s", action="store", default="", help="base dir of deepfashion category img")
+
+    FLAGS, unknown = parser.parse_known_args()
+    return FLAGS
+
 def main():
+    FLAGS = set_parser()
+    global image_dir
+    if FLAGS.s != "":
+        image_dir = FLAGS.s
     build_all()
-    pass
 
 if __name__ == '__main__':
     main()

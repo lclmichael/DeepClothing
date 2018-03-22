@@ -11,7 +11,6 @@ DEFAULT_OUTPUT_DIR = "./json/"
 # deep fashion默认目录
 category_dir = "E:/DataSet/DeepFashion/Category and Attribute Prediction Benchmark/Anno/"
 
-
 def write_json_file(jsonData, output_dir, file_name):
     print("start building " + file_name)
     try:
@@ -87,7 +86,7 @@ def build_category_label_to_json_file(output_dir=DEFAULT_OUTPUT_DIR):
 def set_parser():
     parser = argparse.ArgumentParser(description="this script build json data from deepfashion")
     parser.add_argument("-o", action="store", default="./json/", help="output path for file")
-    parser.add_argument("-s", action="store", default="", help="base dir of deep fashion category")
+    parser.add_argument("-s", action="store", default="", help="base dir of deep fashion category anno")
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
 
