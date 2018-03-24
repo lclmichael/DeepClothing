@@ -1,6 +1,7 @@
 # encoding=utf8
 # Author=LclMichael
 
+import os
 import argparse
 
 import deepclothing.util.json_utils as ju
@@ -13,11 +14,11 @@ class DeepFashionConverter:
     # deepfashion category anno 标注文件目录
     _category_dir = "Category and Attribute Prediction Benchmark/Anno/"
     #类别信息标注文件
-    _list_category_cloth_path = _category_dir + "list_category_cloth.txt"
+    _list_category_cloth_path = os.path.join(_category_dir, "list_category_cloth.txt")
     #图片分类标注文件
-    _list_category_image_path = _category_dir + "list_category_img.txt"
+    _list_category_image_path = os.path.join(_category_dir, "list_category_img.txt")
     #候选框标注文件
-    _list_bbox_path = _category_dir + "list_bbox.txt"
+    _list_bbox_path = os.path.join(_category_dir, "list_bbox.txt")
     _json_dir = "./json/"
 
     def set__base_dir(self, dir_name):
@@ -28,7 +29,7 @@ class DeepFashionConverter:
 
     # 从deepfashion的list_category_cloth.txt中获取类别字典
     def get_category_dict(self):
-        file_path = self._base_dir + self._list_category_cloth_path
+        file_path = os.path.join(self._base_dir, self._list_category_cloth_path)
         with open(file_path, "r") as file:
             datas = file.readlines()[2:]
             category_dict = {line.strip().split()[0]: index for index, line in enumerate(datas)}
@@ -37,7 +38,7 @@ class DeepFashionConverter:
 
     # 从deepfashion的list_category_cloth.txt中获取类别数组
     def get_category_list(self):
-        file_path = self._base_dir + self._list_category_cloth_path
+        file_path = os.path.join(self._base_dir, self._list_category_cloth_path)
         with open(file_path, "r") as file:
             datas = file.readlines()[2:]
             category_list = [line.strip().split()[0] for line in datas]
@@ -53,8 +54,8 @@ class DeepFashionConverter:
     # 格式{count:289222,data:[{categoryNum:1,bbox:[x0,y0,width,height],path:"xxx/yyy/zz.jpg"},...]}
     def build_image_label_json_file(self):
         all_json_name = "image_label.json"
-        bbox_file_path = self._base_dir + self._list_bbox_path
-        image_path = self._base_dir + self._list_category_image_path
+        bbox_file_path = os.path.join(self._base_dir, self._list_bbox_path)
+        image_path = os.path.join(self._base_dir, self._list_category_image_path)
         with open(bbox_file_path, "r") as bb_image_file, open(image_path, "r") as image_file:
             category_dict = self.get_category_dict()
             bb_image_list = [line.split() for line in bb_image_file.readlines()]
