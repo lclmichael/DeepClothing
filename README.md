@@ -1,7 +1,8 @@
 # Deepclothing
 This is for analysing clothing image data
+
 ## Enviroment requirement:
-tensorflow version >= 1.4
+tensorflow version >= 1.4  
 python3.x, numpy, matplot...
 
 ## Data source
@@ -15,5 +16,5 @@ some data from [deepfashion](http://mmlab.ie.cuhk.edu.hk/projects/DeepFashion.ht
 * still adding
 
 ## Author Info
-author: lin chenglong (lclmichael)
+author: lin chenglong (lclmichael)  
 email: lclluffy@163.com
