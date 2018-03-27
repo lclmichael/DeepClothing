@@ -61,8 +61,6 @@ class TFRecordConverter:
             json_count += 1
             image_list.append(os.path.join(self._base_dir, self._image_dir, json_obj["path"]))
             label_list.append(json_obj["categoryNum"])
-            if json_count >= 100:
-                break
 
         image_queue, label_queue = tf.train.slice_input_producer([image_list, label_list], num_epochs=1)
         image_batch, label_batch = tf.train.shuffle_batch(
