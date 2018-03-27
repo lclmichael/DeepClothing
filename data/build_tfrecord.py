@@ -18,8 +18,8 @@ def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
 def decode_image(image_path, resize=[300, 300]):
-    image = tf.gfile.FastGFile(image_path, "rb").read()
-    image = tf.image.decode_jpeg(image)
+    image = tf.read_file(image_path)
+    image = tf.image.decode_jpeg(image, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = tf.image.resize_images(image, resize)
     return image
@@ -52,17 +52,29 @@ class TFRecordConverter:
     def set_json_dir(self, dir_name):
         self._json_dir = dir_name
 
-    def build_tfrecord(self, output_file_path, data):
+    def build_tfrecord(self, output_file_path, data, batch_size = 1, num_threads=8):
         image_list = []
         label_list = []
+        json_count = 0
+
         for json_obj in data:
+            json_count += 1
             image_list.append(os.path.join(self._base_dir, self._image_dir, json_obj["path"]))
             label_list.append(json_obj["categoryNum"])
+            if json_count >= 100:
+                break
 
         image_queue, label_queue = tf.train.slice_input_producer([image_list, label_list], num_epochs=1)
+        image_batch, label_batch = tf.train.shuffle_batch(
+            [decode_image(image_queue), label_queue],
+            batch_size=batch_size,
+            capacity=batch_size * 10,
+            min_after_dequeue=batch_size,
+            num_threads=num_threads,
+            shapes=[(300, 300, 3), ()])
+
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
-
         with tf.Session(config=config) as sess, tf.python_io.TFRecordWriter(output_file_path) as writer:
             coord = tf.train.Coordinator()
             sess.run(tf.local_variables_initializer())
@@ -70,20 +82,21 @@ class TFRecordConverter:
             try:
                 count = 0
                 while not coord.should_stop():
-                    image_one, label_one = sess.run([image_queue, label_queue])
-                    image_raw = decode_image(image_one).eval().tostring()
-                    example = tf.train.Example(
-                         features=tf.train.Features(
-                             feature={
-                                 "image_raw":_bytes_feature(image_raw),
-                                 "label":_int64_feature(label_one)
-                             }
-                         )
-                    )
-                    writer.write(example.SerializeToString())
-                    count += 1
-                    print("\r" + "success write records for " + str(count), end="")
-                print("<======= end")
+                    image_batch_run, label_batch_run = sess.run([image_batch, label_batch])
+                    for i in range(batch_size):
+                        image_raw = image_batch_run[i].tostring()
+                        example = tf.train.Example(
+                             features=tf.train.Features(
+                                 feature={
+                                     "image_raw":_bytes_feature(image_raw),
+                                     "label": _int64_feature(label_batch_run[i])
+                                 }
+                             )
+                        )
+                        writer.write(example.SerializeToString())
+                        count += 1
+                        print("\r" + "write records for " + str(count), end="")
+                print("\n<======= end")
             except tf.errors.OutOfRangeError:
                 pass
             finally:
@@ -123,6 +136,7 @@ def set_parser():
     return FLAGS
 
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     FLAGS = set_parser()
     tc = TFRecordConverter()
     output_dir = FLAGS.output
