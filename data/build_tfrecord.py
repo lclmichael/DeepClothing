@@ -58,9 +58,12 @@ class TFRecordConverter:
         for json_obj in data:
             image_list.append(os.path.join(self._base_dir, self._image_dir, json_obj["path"]))
             label_list.append(json_obj["categoryNum"])
+
         image_queue, label_queue = tf.train.slice_input_producer([image_list, label_list], num_epochs=1)
-        # image_batch, label_batch = tf.train.shuffle_batch([image_queue, label_queue], batch_size=5, capacity=320, min_after_dequeue=10, num_threads=4, shapes=((),()))
-        with tf.Session() as sess, tf.python_io.TFRecordWriter(output_file_path) as writer:
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+
+        with tf.Session(config=config) as sess, tf.python_io.TFRecordWriter(output_file_path) as writer:
             coord = tf.train.Coordinator()
             sess.run(tf.local_variables_initializer())
             threads = tf.train.start_queue_runners(sess=sess, coord=coord)
@@ -68,8 +71,7 @@ class TFRecordConverter:
                 count = 0
                 while not coord.should_stop():
                     image_one, label_one = sess.run([image_queue, label_queue])
-                    image = decode_image(image_one).eval()
-                    image_raw = image.tostring()
+                    image_raw = decode_image(image_one).eval().tostring()
                     example = tf.train.Example(
                          features=tf.train.Features(
                              feature={
@@ -108,7 +110,7 @@ class TFRecordConverter:
         print("======> for test count : " + str(len(test_data)))
         self.build_tfrecord(test_record_path, test_data)
         cost_time = time.time() - start_time
-        print("\n write tfrecords success, cost time: " + str(cost_time))
+        print("write tfrecords success, cost time: " + str(cost_time))
 
 def set_parser():
 
