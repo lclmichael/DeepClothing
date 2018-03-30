@@ -4,12 +4,12 @@
 import os
 import json
 
-#读json文件
+# read json file
 def read_json_file(json_path, encoding = "utf8"):
     with open(json_path, encoding=encoding) as file:
         return json.load(file)
 
-#写json文件
+# write json file
 def write_json_file(jsonData, output_dir, file_name):
     print("start building " + file_name)
     try:

@@ -17,23 +17,12 @@ def _int64_feature(value):
 def _bytes_feature(value):
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-def decode_image(image_path, resize=[300, 300]):
+def decode_image(image_path, resize):
     image = tf.read_file(image_path)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = tf.image.resize_images(image, resize)
     return image
-
-# shuffle data and 90% for train, 5% for validate, 5% for test
-def shuffle_list(data):
-    np.random.shuffle(data)
-    count = len(data)
-    train_count = int(count * 0.9)
-    validate_count = int(count * 0.05)
-    train_data = data[0 : train_count]
-    validate_data = data[train_count : train_count + validate_count]
-    test_data = data[train_count + validate_count : ]
-    return train_data, validate_data, test_data
 
 class TFRecordConverter:
     # deepfashion root dir
@@ -52,7 +41,21 @@ class TFRecordConverter:
     def set_json_dir(self, dir_name):
         self._json_dir = dir_name
 
-    def build_tfrecord(self, output_file_path, data, batch_size = 1, num_threads=8):
+    def get_all_data(self):
+        train_json_path = os.path.join(self._json_dir, "capb_train.json")
+        val_json_path = os.path.join(self._json_dir, "capb_val.json")
+        test_json_path = os.path.join(self._json_dir, "capb_test.json")
+
+        train_data = ju.read_json_file(train_json_path)
+        val_data = ju.read_json_file(val_json_path)
+        test_data = ju.read_json_file(test_json_path)
+
+        return train_data, val_data, test_data
+
+    def build_tfrecord(self, output_dir, file_name, data, batch_size = 1, num_threads=8):
+        output_file_path = os.path.join(output_dir, file_name)
+        resize = [224, 224]
+        shape = (224, 224, 3)
         image_list = []
         label_list = []
         json_count = 0
@@ -64,12 +67,12 @@ class TFRecordConverter:
 
         image_queue, label_queue = tf.train.slice_input_producer([image_list, label_list], num_epochs=1)
         image_batch, label_batch = tf.train.shuffle_batch(
-            [decode_image(image_queue), label_queue],
+            [decode_image(image_queue, resize), label_queue],
             batch_size=batch_size,
             capacity=batch_size * 10,
             min_after_dequeue=batch_size,
             num_threads=num_threads,
-            shapes=[(300, 300, 3), ()])
+            shapes=[shape, ()])
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -101,25 +104,19 @@ class TFRecordConverter:
                 coord.request_stop()
 
     def build_all(self):
-        train_record_path = os.path.join(self._tfrecord_dir, "train.tfrecords")
-        validate_record_path = os.path.join(self._tfrecord_dir, "validate.tfrecords")
-        test_record_path = os.path.join(self._tfrecord_dir, "test.tfrecords")
 
-        label_json_path = os.path.join(self._json_dir, "image_label.json")
-
-        label_json = ju.read_json_file(label_json_path)
-        train_data, validate_data, test_data = shuffle_list(label_json["data"])
+        train_data, validate_data, test_data = self.get_all_data()
 
         print("start write tfrecords")
         start_time = time.time()
         print("======> for train count : " + str(len(train_data)))
-        self.build_tfrecord(train_record_path, train_data)
+        self.build_tfrecord(self._tfrecord_dir, "train.tfrecords", train_data)
 
         print("======> for validate count : " + str(len(validate_data)))
-        self.build_tfrecord(validate_record_path, validate_data)
+        self.build_tfrecord(self._tfrecord_dir, "validate.tfrecords", validate_data)
 
         print("======> for test count : " + str(len(test_data)))
-        self.build_tfrecord(test_record_path, test_data)
+        self.build_tfrecord(self._tfrecord_dir, "test.tfrecords", test_data)
         cost_time = time.time() - start_time
         print("write tfrecords success, cost time: " + str(cost_time))
 
