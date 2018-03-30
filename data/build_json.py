@@ -96,11 +96,11 @@ class CategoryPredictConverter(object):
         print(len(train_list))
         print(len(val_list))
         print(len(test_list))
-        ju.write_json_file(category_list, self._json_dir, "capb_category.json")
-        ju.write_json_file(all_list, self._json_dir, "capb_all.json")
-        ju.write_json_file(train_list, self._json_dir, "capb_train.json")
-        ju.write_json_file(val_list, self._json_dir, "capb_val.json")
-        ju.write_json_file(test_list, self._json_dir, "capb_test.json")
+        ju.write_json_file(category_list, self._json_dir, "prediction_category.json")
+        ju.write_json_file(all_list, self._json_dir, "prediction_all.json")
+        ju.write_json_file(train_list, self._json_dir, "prediction_train.json")
+        ju.write_json_file(val_list, self._json_dir, "prediction_val.json")
+        ju.write_json_file(test_list, self._json_dir, "prediction_test.json")
 
 def set_parser():
     parser = argparse.ArgumentParser(description="this script build json data from deepfashion")

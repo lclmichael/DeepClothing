@@ -42,9 +42,9 @@ class TFRecordConverter:
         self._json_dir = dir_name
 
     def get_all_data(self):
-        train_json_path = os.path.join(self._json_dir, "capb_train.json")
-        val_json_path = os.path.join(self._json_dir, "capb_val.json")
-        test_json_path = os.path.join(self._json_dir, "capb_test.json")
+        train_json_path = os.path.join(self._json_dir, "prediction_train.json")
+        val_json_path = os.path.join(self._json_dir, "prediction_val.json")
+        test_json_path = os.path.join(self._json_dir, "prediction_test.json")
 
         train_data = ju.read_json_file(train_json_path)
         val_data = ju.read_json_file(val_json_path)
