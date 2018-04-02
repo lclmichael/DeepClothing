@@ -6,7 +6,7 @@ import argparse
 
 import deepclothing.util.json_utils as ju
 
-class CategoryPredictConverter(object):
+class CovertToJson(object):
 
     # deepfashion root dir
     _base_dir = "E:/DataSet/DeepFashion/"
@@ -113,7 +113,7 @@ def set_parser():
 # 脚本用于生成json文件,包括属性列表json,所有图片数据json
 def main():
     FLAGS = set_parser()
-    dc = CategoryPredictConverter()
+    dc = CovertToJson()
     json_dir = FLAGS.output
     base_dir = FLAGS.source
     if json_dir != "":

@@ -29,12 +29,12 @@ def normalize(image, label):
 def input_data(tfrecord_path, batch_size=5, num_epochs=1):
     dataset = tf.data.TFRecordDataset(tfrecord_path)
     dataset = dataset.map(decode)
-    dataset = dataset.repeat(-1)
+    dataset = dataset.repeat(num_epochs)
     dataset = dataset.batch(batch_size)
     iterator = dataset.make_one_shot_iterator()
     return iterator.get_next()
 
-class TFRecordReader:
+class TFRecordReader(object):
 
     _tfrecord_dir = "./tfrecord/"
 

@@ -24,7 +24,7 @@ def decode_image(image_path, resize):
     image = tf.image.resize_images(image, resize)
     return image
 
-class TFRecordConverter:
+class CovertToTFRecord(object):
     # deepfashion root dir
     _base_dir = "E:/DataSet/DeepFashion/"
     # img dir
@@ -133,7 +133,7 @@ def set_parser():
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     FLAGS = set_parser()
-    tc = TFRecordConverter()
+    tc = CovertToTFRecord()
     output_dir = FLAGS.output
     json_dir = FLAGS.json
     deepfashion_dir = FLAGS.deepfashion
