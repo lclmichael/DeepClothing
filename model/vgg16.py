@@ -126,7 +126,7 @@ class VGG16(object):
                 cost = time.time() - start
                 print("train step %d, cost %g" % (i, cost))
                 if i % 100 == 0:
-                    accuracy = accuracy_step.run(
+                    accuracy = accuracy_step.eval(
                         feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
                     print("train step %d training accuracy: %g" % (i, accuracy))
 
