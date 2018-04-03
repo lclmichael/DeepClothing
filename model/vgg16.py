@@ -133,19 +133,15 @@ class VGG16(object):
 
 
 def set_parser():
-
-    parser = argparse.ArgumentParser(description="this script build tfrecords data from json")
+    parser = argparse.ArgumentParser(description="run test vgg16 model")
     parser.add_argument("-output", action="store", default="", help="output path for file")
     parser.add_argument("-json", action="store", default="", help="base dir of json")
-    parser.add_argument("-deepfashion", action="store", default="", help="base dir of deepfashion category img")
 
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
 
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-    Flags = set_parser()
-
     # test_get_data()
     train_batch, test_batch = get_input_data(32)
     vgg = VGG16()
