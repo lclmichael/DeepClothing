@@ -104,8 +104,8 @@ class VGG16(object):
         fc2 = fc_layer(fc1, 4096, "fc2", self.keep_prob)
         fc3 = fc_layer(fc2, self._output_size, "fc3")
         y = tf.nn.softmax(fc3)
-
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(y, self.y_truth)
+        
+        cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
         train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
