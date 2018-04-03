@@ -35,6 +35,12 @@ class PredictionReader(object):
 
     _json_dir = "./json/"
 
+    def set_dir(self, base_dir=None, json_dir=None):
+        if base_dir is not None:
+            self._base_dir = base_dir
+        if json_dir is not None:
+            self._json_dir = json_dir
+
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_batch_from_json(self, json_name, batch_size=32):
         data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))

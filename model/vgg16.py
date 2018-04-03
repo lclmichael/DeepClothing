@@ -51,10 +51,9 @@ def fc_layer(bottom, output_size, name, keep_prob=None):
         return drop
 
 
-def get_input_data(base_dir, json_path ="../data/prediction/json", batch_size=32):
+def get_input_data(base_dir=None, json_path ="../data/prediction/json", batch_size=32):
     pr = PredictionReader()
-    pr.set_base_dir(base_dir)
-    pr.set_json_dir(json_path)
+    pr.set_dir(base_dir, json_path)
     train_batch = pr.get_batch_from_json("prediction_train.json", batch_size)
     test_batch = pr.get_batch_from_json("prediction_val.json", batch_size)
     return train_batch, test_batch
@@ -143,7 +142,7 @@ def set_parser():
 def main():
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
-    train_batch, test_batch = get_input_data(32)
+    train_batch, test_batch = get_input_data(batch_size=32)
     vgg = VGG16()
     vgg.train(train_batch)
     pass
