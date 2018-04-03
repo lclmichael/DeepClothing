@@ -106,7 +106,7 @@ class VGG16(object):
         y = tf.nn.softmax(fc3)
 
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(y, self.y_truth)
-        train_step = tf.trainer.AdamOptimiz(0.01).minimize(cross_entropy)
+        train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, cross_entropy, accuracy_step
