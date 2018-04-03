@@ -44,9 +44,9 @@ def fc_layer(bottom, output_size, name, keep_prob=None):
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
         add_bias = tf.nn.bias_add(fc, bias=bias)
-        relu = tf.nn.relu(add_bias)
         if keep_prob is None:
-            return relu
+            return add_bias
+        relu = tf.nn.relu(add_bias)
         drop = tf.nn.dropout(relu, keep_prob=keep_prob)
         return drop
 
@@ -104,7 +104,7 @@ class VGG16(object):
         fc2 = fc_layer(fc1, 4096, "fc2", self.keep_prob)
         fc3 = fc_layer(fc2, self._output_size, "fc3")
         y = tf.nn.softmax(fc3)
-        
+
         cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
         train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
