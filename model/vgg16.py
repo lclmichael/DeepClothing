@@ -106,13 +106,13 @@ class VGG16(object):
         y = tf.nn.softmax(fc3)
 
         cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
-        train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
+        train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, cross_entropy, accuracy_step, y
 
     def train(self, train_batch_tenosr, max_iter=10000):
-        train_step, loss_step, accuracy_step, y = self.get_model()
+        train_step, loss_step, accuracy_step, y_step = self.get_model()
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
@@ -128,11 +128,11 @@ class VGG16(object):
                          })
                 if i % 10 == 0:
                     loss, accuracy, y = sess.run(
-                        [loss_step, accuracy_step],
+                        [loss_step, accuracy_step, y_step],
                             feed_dict={
-                            self.x: train_batch[0],
-                            self.y_truth: train_batch[1],
-                            self.keep_prob:1.0
+                                self.x: train_batch[0],
+                                self.y_truth: train_batch[1],
+                                self.keep_prob:1.0
                         })
                     print(y)
                     cost = time.time() - start
