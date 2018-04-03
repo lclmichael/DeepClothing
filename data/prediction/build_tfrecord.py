@@ -5,11 +5,10 @@ import os
 import time
 import argparse
 
-import numpy as np
 import tensorflow as tf
 
-import deepclothing.util.json_utils as ju
-import deepclothing.util.image_utils as iu
+from deepclothing.util import json_utils
+from deepclothing.util import config_utils
 
 def _int64_feature(value):
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -24,31 +23,29 @@ def decode_image(image_path, resize):
     image = tf.image.resize_images(image, resize)
     return image
 
+# use pipline queue to build tfrecord
+# but tfrecord may 10's larger than the oringinal data
 class CovertToTFRecord(object):
-    # deepfashion root dir
-    _base_dir = "E:/DataSet/DeepFashion/"
-    # img dir
+    # deepfashion base dir
+    _base_dir = config_utils.get_global("deepfashion_root_dir")
     _image_dir = "Category and Attribute Prediction Benchmark/Img/"
-    _tfrecord_dir = "./tfrecord/"
+    _output_dir = "./tfrecord/"
     _json_dir = "./json/"
 
-    def set_base_dir(self, dir_name):
-        self._base_dir = dir_name
-
-    def set_tfrecord_dir(self, dir_name):
-        self._tfrecord_dir = dir_name
-
-    def set_json_dir(self, dir_name):
-        self._json_dir = dir_name
+    def set_dir(self, output_dir=None, json_dir=None):
+        if output_dir is not None:
+            self._output_dir = output_dir
+        if json_dir is not None:
+            self._json_dir = json_dir
 
     def get_all_data(self):
         train_json_path = os.path.join(self._json_dir, "prediction_train.json")
         val_json_path = os.path.join(self._json_dir, "prediction_val.json")
         test_json_path = os.path.join(self._json_dir, "prediction_test.json")
 
-        train_data = ju.read_json_file(train_json_path)
-        val_data = ju.read_json_file(val_json_path)
-        test_data = ju.read_json_file(test_json_path)
+        train_data = json_utils.read_json_file(train_json_path)
+        val_data = json_utils.read_json_file(val_json_path)
+        test_data = json_utils.read_json_file(test_json_path)
 
         return train_data, val_data, test_data
 
@@ -110,22 +107,21 @@ class CovertToTFRecord(object):
         print("start write tfrecords")
         start_time = time.time()
         print("======> for train count : " + str(len(train_data)))
-        self.build_tfrecord(self._tfrecord_dir, "train.tfrecords", train_data)
+        self.build_tfrecord(self._output_dir, "train.tfrecords", train_data)
 
         print("======> for validate count : " + str(len(validate_data)))
-        self.build_tfrecord(self._tfrecord_dir, "validate.tfrecords", validate_data)
+        self.build_tfrecord(self._output_dir, "validate.tfrecords", validate_data)
 
         print("======> for test count : " + str(len(test_data)))
-        self.build_tfrecord(self._tfrecord_dir, "test.tfrecords", test_data)
+        self.build_tfrecord(self._output_dir, "test.tfrecords", test_data)
         cost_time = time.time() - start_time
         print("write tfrecords success, cost time: " + str(cost_time))
 
 def set_parser():
 
     parser = argparse.ArgumentParser(description="this script build tfrecords data from json")
-    parser.add_argument("-output", action="store", default="", help="output path for file")
-    parser.add_argument("-json", action="store", default="", help="base dir of json")
-    parser.add_argument("-deepfashion", action="store", default="", help="base dir of deepfashion category img")
+    parser.add_argument("-output", action="store", default=None, help="output path for file")
+    parser.add_argument("-json", action="store", default=None, help="base dir of json")
 
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
@@ -136,13 +132,7 @@ def main():
     tc = CovertToTFRecord()
     output_dir = FLAGS.output
     json_dir = FLAGS.json
-    deepfashion_dir = FLAGS.deepfashion
-    if output_dir != "":
-        tc.set_tfrecord_dir(output_dir)
-    if json_dir != "":
-        tc.set_json_dir(json_dir)
-    if deepfashion_dir != "":
-        tc.set_base_dir(deepfashion_dir)
+    tc.set_dir(output_dir, json_dir)
     tc.build_all()
 
 if __name__ == '__main__':

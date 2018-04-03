@@ -1,10 +1,13 @@
 #encoding=utf8
 #Author=LclMichael
 
+import os
 import time
+import argparse
+
 import tensorflow as tf
 
-import deepclothing.util.image_utils as iu
+from deepclothing.util import image_utils
 from deepclothing.data.prediction.input_data import PredictionReader
 
 def get_filter(shape):
@@ -48,9 +51,10 @@ def fc_layer(bottom, output_size, name, keep_prob=None):
         return drop
 
 
-def get_input_data(batch_size=32):
+def get_input_data(base_dir, json_path ="../data/prediction/json", batch_size=32):
     pr = PredictionReader()
-    pr.set_json_dir("../data/prediction/json")
+    pr.set_base_dir(base_dir)
+    pr.set_json_dir(json_path)
     train_batch = pr.get_batch_from_json("prediction_train.json", batch_size)
     test_batch = pr.get_batch_from_json("prediction_val.json", batch_size)
     return train_batch, test_batch
@@ -61,7 +65,7 @@ def test_get_data():
         img_batch, label_batch = sess.run(train_batch)
         for i in range(5):
             print(label_batch[i])
-            iu.show_image(img_batch[i])
+            image_utils.show_image(img_batch[i])
 
 class VGG16(object):
 
@@ -127,9 +131,23 @@ class VGG16(object):
                         feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
                     print("train step %d training accuracy: %g" % (i, accuracy))
 
+
+def set_parser():
+
+    parser = argparse.ArgumentParser(description="this script build tfrecords data from json")
+    parser.add_argument("-output", action="store", default="", help="output path for file")
+    parser.add_argument("-json", action="store", default="", help="base dir of json")
+    parser.add_argument("-deepfashion", action="store", default="", help="base dir of deepfashion category img")
+
+    FLAGS, unknown = parser.parse_known_args()
+    return FLAGS
+
 def main():
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    Flags = set_parser()
+
     # test_get_data()
-    train_batch, test_batch = get_input_data(1)
+    train_batch, test_batch = get_input_data(32)
     vgg = VGG16()
     vgg.train(train_batch)
     pass

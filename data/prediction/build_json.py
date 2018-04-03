@@ -4,12 +4,12 @@
 import os
 import argparse
 
-import deepclothing.util.json_utils as ju
+from deepclothing.util import json_utils
+from deepclothing.util import config_utils
 
 class CovertToJson(object):
-
     # deepfashion root dir
-    _base_dir = "E:/DataSet/DeepFashion/"
+    _base_dir = config_utils.get_global("deepfashion_root_dir")
     # deepfashion category anno 标注文件目录
     _anno_dir = "Category and Attribute Prediction Benchmark/Anno/"
     # 划分训练，测试还有泛化数据集
@@ -26,10 +26,7 @@ class CovertToJson(object):
 
     _json_dir = "./json/"
 
-    def set__base_dir(self, dir_name):
-        self._base_dir = dir_name
-
-    def set__json_dir(self, dir_name):
+    def set_dir(self, dir_name):
         self._json_dir = dir_name
 
     # 从deepfashion的list_category_cloth.txt中获取类别字典
@@ -96,16 +93,15 @@ class CovertToJson(object):
         print(len(train_list))
         print(len(val_list))
         print(len(test_list))
-        ju.write_json_file(category_list, self._json_dir, "prediction_category.json")
-        ju.write_json_file(all_list, self._json_dir, "prediction_all.json")
-        ju.write_json_file(train_list, self._json_dir, "prediction_train.json")
-        ju.write_json_file(val_list, self._json_dir, "prediction_val.json")
-        ju.write_json_file(test_list, self._json_dir, "prediction_test.json")
+        json_utils.write_json_file(category_list, self._json_dir, "prediction_category.json")
+        json_utils.write_json_file(all_list, self._json_dir, "prediction_all.json")
+        json_utils.write_json_file(train_list, self._json_dir, "prediction_train.json")
+        json_utils.write_json_file(val_list, self._json_dir, "prediction_val.json")
+        json_utils.write_json_file(test_list, self._json_dir, "prediction_test.json")
 
 def set_parser():
     parser = argparse.ArgumentParser(description="this script build json data from deepfashion")
     parser.add_argument("-output", action="store", default="", help="output path for json file")
-    parser.add_argument("-source", action="store", default="", help="base dir of deep fashion")
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
 
@@ -115,11 +111,8 @@ def main():
     FLAGS = set_parser()
     dc = CovertToJson()
     json_dir = FLAGS.output
-    base_dir = FLAGS.source
     if json_dir != "":
-        dc.set__json_dir(json_dir)
-    if base_dir != "":
-        dc.set__base_dir(base_dir)
+        dc.set_dir(json_dir)
     dc.build_all_json_file()
 
 if __name__ == '__main__':

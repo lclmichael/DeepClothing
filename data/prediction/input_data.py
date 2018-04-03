@@ -5,8 +5,9 @@ import os
 
 import tensorflow as tf
 
-import deepclothing.util.json_utils as ju
-import deepclothing.util.image_utils as iu
+from deepclothing.util import json_utils
+from deepclothing.util import image_utils
+from deepclothing.util import config_utils
 
 def decode_original_image(image, label):
     image = tf.read_file(image)
@@ -27,23 +28,16 @@ def get_iterator(tensors, batch_size=32, threads=8, num_epochs=-1, is_shuffle=Fa
     return iterator.get_next()
 
 class PredictionReader(object):
-
-    _base_dir = "E:/DataSet/DeepFashion/"
+    # deepfashion root dir
+    _base_dir = config_utils.get_global("deepfashion_root_dir")
 
     _image_dir = "Category and Attribute Prediction Benchmark/Img/"
 
     _json_dir = "./json/"
 
-    def set_base_dir(self, dir_name):
-        self._base_dir = dir_name
-
-    def set_json_dir(self, dir_name):
-        self._json_dir = dir_name
-
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_batch_from_json(self, json_name, batch_size=32):
-        data = ju.read_json_file(os.path.join(self._json_dir, json_name))
-
+        data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
         img_list = []
         label_list = []
         for item in data:
@@ -61,7 +55,7 @@ class PredictionReader(object):
             img_batch, label_batch = sess.run(batch)
             for i in range(batch_size):
                 print(label_batch[i])
-                iu.show_image(img_batch[i])
+                image_utils.show_image(img_batch[i])
 
 def main():
     pr = PredictionReader()

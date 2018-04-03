@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 
-import deepclothing.util.image_utils as iu
+from deepclothing.util import image_utils
 
 tfrecord_path = "./tfrecord/train.tfrecords"
 
@@ -27,7 +27,7 @@ def main():
         sess.run(tf.global_variables_initializer())
         tf.train.start_queue_runners(sess=sess, coord=coord)
         data_image, data_label = sess.run([image, label])
-        iu.show_image(data_image)
+        image_utils.show_image(data_image)
 
 if __name__ == '__main__':
     main()
