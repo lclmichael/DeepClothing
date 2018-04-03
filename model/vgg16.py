@@ -103,8 +103,8 @@ class VGG16(object):
         fc1 = fc_layer(pool5, 4096, "fc1", self.keep_prob)
         fc2 = fc_layer(fc1, 4096, "fc2", self.keep_prob)
         fc3 = fc_layer(fc2, self._output_size, "fc3")
-
         y = tf.nn.softmax(fc3)
+
         cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(y))
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
@@ -113,7 +113,6 @@ class VGG16(object):
 
     def train(self, train_batch_tenosr, max_iter=10000):
         train_step, loss_step, accuracy_step = self.get_model()
-
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
@@ -121,16 +120,14 @@ class VGG16(object):
             for i in range(max_iter):
                 start = time.time()
                 train_batch = sess.run(train_batch_tenosr)
-                train_step.run(
-                    feed_dict={self.x:train_batch[0], self.y_truth: train_batch[1], self.keep_prob: 0.5})
-                cost = time.time() - start
-                print("train step %d, cost %g" % (i, cost))
-                if i % 100 == 0:
+                sess.run(train_step, feed_dict={self.x:train_batch[0], self.y_truth: train_batch[1], self.keep_prob: 0.5})
+                if i % 10 == 0:
                     loss = loss_step.eval(
                         feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
                     accuracy = accuracy_step.eval(
                         feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
-                    print("train step %d training accuracy: %g; loss: %g" % (i, accuracy, loss))
+                    cost = time.time() - start
+                    print("train step %d training accuracy: %g; loss: %g; cost %g;" % (i, accuracy, loss, cost))
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
@@ -141,7 +138,7 @@ def set_parser():
     return FLAGS
 
 def main():
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
     train_batch, test_batch = get_input_data(batch_size=32)
     vgg = VGG16()
