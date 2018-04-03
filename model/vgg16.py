@@ -14,7 +14,7 @@ def get_filter(shape):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.1), dtype=tf.float32, name="filter")
 
 def get_bias(shape):
-    return tf.constant(0.1, shape=shape, name="bias")
+    return tf.Variable(tf.constant(0.1, shape=shape, name="bias"))
 
 def get_weight(shape):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.1), dtype=tf.float32, name="fc_weight")
