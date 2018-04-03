@@ -105,8 +105,9 @@ class VGG16(object):
         fc3 = fc_layer(fc2, self._output_size, "fc3")
         y = tf.nn.softmax(fc3)
 
-        cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(tf.clip_by_value(y, 1e-10, 1.0)))
-        train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
+
+        train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, cross_entropy, accuracy_step, y
@@ -127,14 +128,13 @@ class VGG16(object):
                              self.keep_prob: 0.5
                          })
                 if i % 10 == 0:
-                    loss, accuracy, y = sess.run(
-                        [loss_step, accuracy_step, y_step],
+                    loss, accuracy= sess.run(
+                        [loss_step, accuracy_step],
                             feed_dict={
                                 self.x: train_batch[0],
                                 self.y_truth: train_batch[1],
                                 self.keep_prob:1.0
                         })
-                    print(y)
                     cost = time.time() - start
                     print("train step %d training accuracy: %g; loss: %g; cost %g;" % (i, accuracy, loss, cost))
 
@@ -147,7 +147,7 @@ def set_parser():
     return FLAGS
 
 def main():
-    # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
     train_batch, test_batch = get_input_data(batch_size=32)
     vgg = VGG16()
