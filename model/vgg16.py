@@ -109,10 +109,10 @@ class VGG16(object):
         train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
-        return train_step, accuracy_step
+        return train_step, cross_entropy, accuracy_step
 
     def train(self, train_batch_tenosr, max_iter=10000):
-        train_step, accuracy_step = self.get_model()
+        train_step, loss_step, accuracy_step = self.get_model()
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -126,10 +126,11 @@ class VGG16(object):
                 cost = time.time() - start
                 print("train step %d, cost %g" % (i, cost))
                 if i % 100 == 0:
+                    loss = loss_step.eval(
+                        feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
                     accuracy = accuracy_step.eval(
                         feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
-                    print("train step %d training accuracy: %g" % (i, accuracy))
-
+                    print("train step %d training accuracy: %g; loss: %g" % (i, accuracy, loss))
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
