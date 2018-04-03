@@ -105,8 +105,8 @@ class VGG16(object):
         fc3 = fc_layer(fc2, self._output_size, "fc3")
         y = tf.nn.softmax(fc3)
 
-        cross_entropy = -tf.reduce_mean(self.y_truth * tf.log(y))
-        train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(y, self.y_truth)
+        train_step = tf.trainer.AdamOptimiz(0.01).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, cross_entropy, accuracy_step
@@ -116,16 +116,29 @@ class VGG16(object):
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
-            sess.run(tf.global_variables_initializer())
+            tf.global_variables_initializer().run()
             for i in range(max_iter):
                 start = time.time()
                 train_batch = sess.run(train_batch_tenosr)
-                sess.run(train_step, feed_dict={self.x:train_batch[0], self.y_truth: train_batch[1], self.keep_prob: 0.5})
+                sess.run(train_step,
+                         feed_dict={
+                             self.x: train_batch[0],
+                             self.y_truth: train_batch[1],
+                             self.keep_prob: 0.5
+                         })
                 if i % 10 == 0:
                     loss = loss_step.eval(
-                        feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
+                        feed_dict={
+                            self.x: train_batch[0],
+                            self.y_truth: train_batch[1],
+                            self.keep_prob:1.0
+                        })
                     accuracy = accuracy_step.eval(
-                        feed_dict={self.x: train_batch[0], self.y_truth: train_batch[1], self.keep_prob:1})
+                        feed_dict={
+                            self.x: train_batch[0],
+                            self.y_truth: train_batch[1],
+                            self.keep_prob:1.0
+                        })
                     cost = time.time() - start
                     print("train step %d training accuracy: %g; loss: %g; cost %g;" % (i, accuracy, loss, cost))
 
