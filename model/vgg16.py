@@ -52,11 +52,11 @@ def get_input_data(base_dir=None, json_path ="../data/prediction/json", batch_si
     pr = PredictionReader()
     pr.set_dir(base_dir, json_path)
     train_batch = pr.get_batch_from_json("prediction_train.json", batch_size)
-    test_batch = pr.get_batch_from_json("prediction_val.json", batch_size)
-    return train_batch, test_batch
+    # test_batch = pr.get_batch_from_json("prediction_val.json", batch_size)
+    return train_batch
 
 def test_get_data():
-    train_batch, test_batch = get_input_data()
+    train_batch = get_input_data()
     with tf.Session() as sess:
         img_batch, label_batch = sess.run(train_batch)
         for i in range(5):
@@ -103,7 +103,7 @@ class VGG16(object):
         y = tf.nn.softmax(fc3)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
         loss = tf.reduce_mean(cross_entropy)
-        train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+        train_step = tf.train.AdamOptimizer(1e-2).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, loss, accuracy_step
@@ -144,9 +144,9 @@ def set_parser():
     return FLAGS
 
 def main():
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
-    train_batch, test_batch = get_input_data(batch_size=32)
+    train_batch = get_input_data(batch_size=32)
     vgg = VGG16()
     vgg.train(train_batch)
     pass
