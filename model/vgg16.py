@@ -10,14 +10,12 @@ import tensorflow as tf
 from deepclothing.util import image_utils
 from deepclothing.data.prediction.input_data import PredictionReader
 
-def get_filter(shape):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1), dtype=tf.float32, name="filter")
+# filter, fully-connector layer weight
+def get_weight(shape, name):
+    return tf.Variable(tf.truncated_normal(shape, stddev=0.01), dtype=tf.float32, name=name)
 
 def get_bias(shape):
     return tf.Variable(tf.constant(0.1, shape=shape, name="bias"))
-
-def get_weight(shape):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1), dtype=tf.float32, name="fc_weight")
 
 def max_pool(bottom, name):
     return tf.nn.max_pool(
@@ -30,7 +28,7 @@ def max_pool(bottom, name):
 
 def conv_layer(bottom, input_size, output_size, name):
     with tf.variable_scope(name):
-        weight = get_filter([3, 3, input_size, output_size])
+        weight = get_weight([3, 3, input_size, output_size], "filter")
         bias = get_bias([output_size])
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
         add_bias = tf.nn.bias_add(convd, bias=bias)
@@ -40,7 +38,7 @@ def conv_layer(bottom, input_size, output_size, name):
 def fc_layer(bottom, output_size, name, keep_prob=None):
     with tf.variable_scope(name):
         flatten = tf.layers.flatten(bottom)
-        weight = get_weight([flatten.get_shape().as_list()[1], output_size])
+        weight = get_weight([flatten.get_shape().as_list()[1], output_size], name="weight")
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
         add_bias = tf.nn.bias_add(fc, bias=bias)
@@ -49,7 +47,6 @@ def fc_layer(bottom, output_size, name, keep_prob=None):
         relu = tf.nn.relu(add_bias)
         drop = tf.nn.dropout(relu, keep_prob=keep_prob)
         return drop
-
 
 def get_input_data(base_dir=None, json_path ="../data/prediction/json", batch_size=32):
     pr = PredictionReader()

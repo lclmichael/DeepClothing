@@ -42,7 +42,7 @@ class PredictionReader(object):
             self._json_dir = json_dir
 
     # get batch from json, return a tenor list [img_batch, label_batch]
-    def get_batch_from_json(self, json_name, batch_size=32):
+    def get_batch_from_json(self, json_name, batch_size=32, is_shuffle=True):
         data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
         img_list = []
         label_list = []
@@ -50,7 +50,7 @@ class PredictionReader(object):
             img_list.append(os.path.join(self._base_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
         tensors = (img_list, label_list)
-        batch = get_iterator(tensors, batch_size=batch_size)
+        batch = get_iterator(tensors, batch_size=batch_size, is_shuffle=is_shuffle)
         return batch
 
     def test_batch(self):
