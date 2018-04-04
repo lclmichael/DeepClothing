@@ -104,16 +104,16 @@ class VGG16(object):
         fc2 = fc_layer(fc1, 4096, "fc2", self.keep_prob)
         fc3 = fc_layer(fc2, self._output_size, "fc3")
         y = tf.nn.softmax(fc3)
-
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
-
-        train_step = tf.train.AdamOptimizer(0.01).minimize(cross_entropy)
+        loss = tf.reduce_mean(cross_entropy)
+        train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
-        return train_step, cross_entropy, accuracy_step, y
+        return train_step, loss, accuracy_step
 
     def train(self, train_batch_tenosr, max_iter=10000):
-        train_step, loss_step, accuracy_step, y_step = self.get_model()
+        train_step, loss_step, accuracy_step = self.get_model()
+        loss_step = tf.reduce_mean(loss_step)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
@@ -136,7 +136,7 @@ class VGG16(object):
                                 self.keep_prob:1.0
                         })
                     cost = time.time() - start
-                    print("train step %d training accuracy: %g; loss: %g; cost %g;" % (i, accuracy, loss, cost))
+                    print("train step {} training accuracy: {}; loss: {}; cost {};".format(i, accuracy, loss, cost))
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
