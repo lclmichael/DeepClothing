@@ -23,7 +23,7 @@ def get_iterator(tensors, batch_size=32, threads=8, num_epochs=-1, is_shuffle=Fa
     dataset = dataset.map(decode_original_image, num_parallel_calls=threads)
     dataset = dataset.batch(batch_size).repeat(num_epochs)
     if is_shuffle:
-        dataset = dataset.shuffle(10000)
+        dataset = dataset.shuffle(batch_size * threads)
     iterator = dataset.make_one_shot_iterator()
     return iterator.get_next()
 
