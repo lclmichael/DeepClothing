@@ -186,8 +186,8 @@ class VGG16(object):
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
-    parser.add_argument("-lr", action="store", default=1e-3, help="learning rate")
-    parser.add_argument("-stddev", action="store", default=1e-3, help="weight stddev")
+    parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
+    parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
     parser.add_argument("-print_interval", action="store", default=100, type=int, help="print interval")
     parser.add_argument("-val_interval", action="store", default=2000, type=int, help="val interval")
