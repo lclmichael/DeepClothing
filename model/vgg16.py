@@ -11,8 +11,8 @@ from deepclothing.util import image_utils
 from deepclothing.data.prediction.input_data import PredictionReader
 
 # filter, fully-connector layer weight
-def get_weight(shape, name):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.01), dtype=tf.float32, name=name)
+def get_weight(shape, stddev=1e-2, name="weight"):
+    return tf.Variable(tf.truncated_normal(shape, stddev=stddev), dtype=tf.float32, name=name)
 
 def get_bias(shape):
     return tf.Variable(tf.constant(0.1, shape=shape, name="bias"))
@@ -26,19 +26,19 @@ def max_pool(bottom, name):
         name=name
     )
 
-def conv_layer(bottom, input_size, output_size, name):
+def conv_layer(bottom, input_size, output_size, stddev=1e-2, name="conv_layer"):
     with tf.variable_scope(name):
-        weight = get_weight([3, 3, input_size, output_size], "filter")
+        weight = get_weight([3, 3, input_size, output_size], stddev=1e-2, name="filter")
         bias = get_bias([output_size])
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
         add_bias = tf.nn.bias_add(convd, bias=bias)
         relu = tf.nn.relu(add_bias)
         return relu
 
-def fc_layer(bottom, output_size, name, keep_prob=None):
+def fc_layer(bottom, output_size, stddev=1e-2, keep_prob=None, name="fc_layer"):
     with tf.variable_scope(name):
         flatten = tf.layers.flatten(bottom)
-        weight = get_weight([flatten.get_shape().as_list()[1], output_size], name="weight")
+        weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
         add_bias = tf.nn.bias_add(fc, bias=bias)
@@ -84,43 +84,43 @@ class VGG16(object):
         self.y_truth = tf.placeholder(dtype=tf.float32, shape=[None, self._output_size])
         self.keep_prob = tf.placeholder(dtype=tf.float32, name="keep_prob")
 
-    def get_model(self):
-        conv1_1 = conv_layer(self.x, 3, 64, "conv1_1")
-        conv1_2 = conv_layer(conv1_1, 64, 64, "conv1_2")
+    def get_model(self, lr=1e-3, stddev=1e-2):
+        conv1_1 = conv_layer(self.x, 3, 64, stddev=stddev, name="conv1_1")
+        conv1_2 = conv_layer(conv1_1, 64, 64, name="conv1_2")
         pool1 = max_pool(conv1_2, "pool1")
 
-        conv2_1 = conv_layer(pool1, 64, 128, "conv2_1")
-        conv2_2 = conv_layer(conv2_1, 128, 128, "conv2_2")
+        conv2_1 = conv_layer(pool1, 64, 128, stddev=stddev, name="conv2_1")
+        conv2_2 = conv_layer(conv2_1, 128, 128, stddev=stddev, name="conv2_2")
         pool2 = max_pool(conv2_2, "pool2")
 
-        conv3_1 = conv_layer(pool2, 128, 256, "conv3_1")
-        conv3_2 = conv_layer(conv3_1, 256, 256, "conv3_2")
-        conv3_3 = conv_layer(conv3_2, 256, 256, "conv3_3")
+        conv3_1 = conv_layer(pool2, 128, 256, stddev=stddev, name="conv3_1")
+        conv3_2 = conv_layer(conv3_1, 256, 256, stddev=stddev, name="conv3_2")
+        conv3_3 = conv_layer(conv3_2, 256, 256, stddev=stddev, name="conv3_3")
         pool3 = max_pool(conv3_3, "pool3")
 
-        conv4_1 = conv_layer(pool3, 256, 512, "conv4_1")
-        conv4_2 = conv_layer(conv4_1, 512, 512, "conv4_2")
-        conv4_3 = conv_layer(conv4_2, 512, 512, "conv4_3")
+        conv4_1 = conv_layer(pool3, 256, 512, stddev=stddev, name="conv4_1")
+        conv4_2 = conv_layer(conv4_1, 512, 512, stddev=stddev, name="conv4_2")
+        conv4_3 = conv_layer(conv4_2, 512, 512, stddev=stddev, name="conv4_3")
         pool4 = max_pool(conv4_3, "pool4")
 
-        conv5_1 = conv_layer(pool4, 512, 512, "conv5_1")
-        conv5_2 = conv_layer(conv5_1, 512, 512, "conv5_2")
-        conv5_3 = conv_layer(conv5_2, 512, 512, "conv5_3")
+        conv5_1 = conv_layer(pool4, 512, 512, stddev=stddev, name="conv5_1")
+        conv5_2 = conv_layer(conv5_1, 512, 512, stddev=stddev, name="conv5_2")
+        conv5_3 = conv_layer(conv5_2, 512, 512, stddev=stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        fc1 = fc_layer(pool5, 4096, "fc1", self.keep_prob)
-        fc2 = fc_layer(fc1, 4096, "fc2", self.keep_prob)
-        fc3 = fc_layer(fc2, self._output_size, "fc3")
+        fc1 = fc_layer(pool5, 4096, keep_prob=self.keep_prob, stddev=stddev, name="fc1")
+        fc2 = fc_layer(fc1, 4096, keep_prob=self.keep_prob, stddev=stddev, name="fc2")
+        fc3 = fc_layer(fc2, self._output_size, keep_prob=self.keep_prob, stddev=stddev, name="fc3")
         y = tf.nn.softmax(fc3)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
         loss = tf.reduce_mean(cross_entropy)
-        train_step = tf.train.AdamOptimizer(1e-2).minimize(cross_entropy)
+        train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, loss, accuracy
 
-    def train(self, train_batch_tenosr, val_batch_tensor, max_iter=200000):
-        train_step_tensor, loss_tensor, accuracy_tensor = self.get_model()
+    def train(self, train_batch_tenosr, val_batch_tensor, lr=1e-3, stddev=1e-2, max_iter=200000):
+        train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
@@ -168,8 +168,9 @@ class VGG16(object):
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
-    parser.add_argument("-output", action="store", default="", help="output path for file")
-    parser.add_argument("-json", action="store", default="", help="base dir of json")
+    parser.add_argument("-lr", action="store", default=1e-3, help="learning rate")
+    parser.add_argument("-iter", action="store", default=1e-2, help="max iter")
+    parser.add_argument("-stddev", action="store", default=200000, help="weight stddev")
 
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
@@ -177,10 +178,14 @@ def set_parser():
 def main():
     # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
+    FLAGS = set_parser()
+    lr = FLAGS.lr
+    stddev = FLAGS.stddev
+    max_iter = FLAGS.iter
     train_batch = get_train_data(batch_size=32)
     val_batch = get_val_data(batch_size=40)
     vgg = VGG16()
-    vgg.train(train_batch, val_batch, max_iter=200000)
+    vgg.train(train_batch, val_batch, lr=lr, stddev=stddev, max_iter=max_iter)
     pass
 
 if __name__ == '__main__':
