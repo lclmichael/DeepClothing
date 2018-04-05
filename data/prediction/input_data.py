@@ -18,7 +18,7 @@ def decode_original_image(image, label):
     label = tf.cast(label, dtype=tf.float32)
     return image, label
 
-def get_iterator(tensors, batch_size=32, threads=8, num_epochs=-1, is_shuffle=False):
+def get_iterator(tensors, batch_size=32, threads=4, num_epochs=-1, is_shuffle=False):
     dataset = tf.data.Dataset.from_tensor_slices(tensors)
     dataset = dataset.map(decode_original_image, num_parallel_calls=threads)
     dataset = dataset.batch(batch_size).repeat(num_epochs)
