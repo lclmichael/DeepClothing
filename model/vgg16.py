@@ -146,7 +146,7 @@ class VGG16(object):
                     cost_time = time.time() - start_time
                     print("train on step {} ; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
                     start_time = time.time()
-                if i % 100 == 0 && i > 0:
+                if i % 100 == 0 and i > 0:
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
