@@ -27,7 +27,7 @@ def decode_image(image_path, resize):
 # but tfrecord may 10's larger than the oringinal data
 class CovertToTFRecord(object):
     # deepfashion base dir
-    _base_dir = config_utils.get_global("deepfashion_root_dir")
+    _data_root_dir = config_utils.get_global("deepfashion_root_dir")
     _image_dir = "Category and Attribute Prediction Benchmark/Img/"
     _output_dir = "./tfrecord/"
     _json_dir = "./json/"
@@ -59,7 +59,7 @@ class CovertToTFRecord(object):
 
         for json_obj in data:
             json_count += 1
-            image_list.append(os.path.join(self._base_dir, self._image_dir, json_obj["path"]))
+            image_list.append(os.path.join(self._data_root_dir, self._image_dir, json_obj["path"]))
             label_list.append(json_obj["categoryNum"])
 
         image_queue, label_queue = tf.train.slice_input_producer([image_list, label_list], num_epochs=1)

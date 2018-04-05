@@ -22,22 +22,22 @@ def get_iterator(tensors, batch_size=32, threads=8, num_epochs=-1, is_shuffle=Fa
     dataset = tf.data.Dataset.from_tensor_slices(tensors)
     dataset = dataset.map(decode_original_image, num_parallel_calls=threads)
     dataset = dataset.batch(batch_size).repeat(num_epochs)
-    if is_shuffle:
-        dataset = dataset.shuffle(batch_size * threads)
+    if is_shuffle and batch_size >= 1:
+        dataset = dataset.shuffle(batch_size * 2)
     iterator = dataset.make_one_shot_iterator()
     return iterator.get_next()
 
 class PredictionReader(object):
     # deepfashion root dir
-    _base_dir = config_utils.get_global("deepfashion_root_dir")
+    _data_root_dir = config_utils.get_global("deepfashion_root_dir")
 
     _image_dir = "Category and Attribute Prediction Benchmark/Img/"
 
     _json_dir = "./json/"
 
-    def set_dir(self, base_dir=None, json_dir=None):
-        if base_dir is not None:
-            self._base_dir = base_dir
+    def set_dir(self, data_root_dir=None, json_dir=None):
+        if data_root_dir is not None:
+            self._data_root_dir = data_root_dir
         if json_dir is not None:
             self._json_dir = json_dir
 
@@ -47,9 +47,11 @@ class PredictionReader(object):
         img_list = []
         label_list = []
         for item in data:
-            img_list.append(os.path.join(self._base_dir, self._image_dir, item["path"]))
+            img_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
         tensors = (img_list, label_list)
+        if batch_size == -1:
+            batch_size = len(img_list)
         batch = get_iterator(tensors, batch_size=batch_size, is_shuffle=is_shuffle)
         return batch
 

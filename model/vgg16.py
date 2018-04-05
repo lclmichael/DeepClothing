@@ -48,20 +48,31 @@ def fc_layer(bottom, output_size, name, keep_prob=None):
         drop = tf.nn.dropout(relu, keep_prob=keep_prob)
         return drop
 
-def get_input_data(base_dir=None, json_path ="../data/prediction/json", batch_size=32):
+def get_train_data(data_root_dir=None, json_path ="../data/prediction/json", batch_size=32):
     pr = PredictionReader()
-    pr.set_dir(base_dir, json_path)
+    pr.set_dir(data_root_dir, json_path)
     train_batch = pr.get_batch_from_json("prediction_train.json", batch_size)
-    # test_batch = pr.get_batch_from_json("prediction_val.json", batch_size)
     return train_batch
 
+def get_val_data(data_root_dir=None, json_path="../data/prediction/json", batch_size=32):
+    pr = PredictionReader()
+    pr.set_dir(data_root_dir, json_path)
+    test_batch = pr.get_batch_from_json("prediction_val.json", batch_size=batch_size, is_shuffle=False)
+    return test_batch
+
 def test_get_data():
-    train_batch = get_input_data()
+    train_batch = get_train_data()
+    val_batch = get_val_data()
     with tf.Session() as sess:
-        img_batch, label_batch = sess.run(train_batch)
-        for i in range(5):
-            print(label_batch[i])
-            image_utils.show_image(img_batch[i])
+        train_img_batch, train_label_batch = sess.run(train_batch)
+        val_img_batch, val_label_batch = sess.run(val_batch)
+        for i in range(3):
+            print(train_label_batch[i])
+            image_utils.show_image(train_img_batch[i])
+
+        for i in range(3):
+            print(val_label_batch[i])
+            image_utils.show_image(val_img_batch[i])
 
 class VGG16(object):
 
@@ -105,35 +116,55 @@ class VGG16(object):
         loss = tf.reduce_mean(cross_entropy)
         train_step = tf.train.AdamOptimizer(1e-2).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
-        accuracy_step = tf.reduce_mean(tf.cast(prediction, tf.float32))
-        return train_step, loss, accuracy_step
+        accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
+        return train_step, loss, accuracy
 
-    def train(self, train_batch_tenosr, max_iter=10000):
-        train_step, loss_step, accuracy_step = self.get_model()
-        loss_step = tf.reduce_mean(loss_step)
+    def train(self, train_batch_tenosr, val_batch_tensor, max_iter=200000):
+        train_step_tensor, loss_tensor, accuracy_tensor = self.get_model()
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         with tf.Session(config=config) as sess:
             tf.global_variables_initializer().run()
+            start_time = time.time()
             for i in range(max_iter):
-                start = time.time()
                 train_batch = sess.run(train_batch_tenosr)
-                sess.run(train_step,
-                         feed_dict={
-                             self.x: train_batch[0],
-                             self.y_truth: train_batch[1],
-                             self.keep_prob: 0.5
-                         })
+                sess.run(
+                    train_step_tensor,
+                    feed_dict={
+                        self.x: train_batch[0],
+                        self.y_truth: train_batch[1],
+                        self.keep_prob: 0.5
+                    })
                 if i % 10 == 0:
-                    loss, accuracy= sess.run(
-                        [loss_step, accuracy_step],
+                    loss = sess.run(
+                        loss_tensor,
+                        feed_dict={
+                            self.x: train_batch[0],
+                            self.y_truth: train_batch[1],
+                            self.keep_prob:1.0
+                        })
+                    cost_time = time.time() - start_time
+                    print("train on step {} ; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
+                    start_time = time.time()
+                if i % 100 == 0:
+                    start_time = time.time()
+                    all_loss = 0
+                    all_accuracy = 0
+                    for j in range(1000):
+                        val_batch = sess.run(val_batch_tensor)
+                        loss, accuracy = sess.run(
+                            [loss_tensor, accuracy_tensor],
                             feed_dict={
                                 self.x: train_batch[0],
                                 self.y_truth: train_batch[1],
-                                self.keep_prob:1.0
-                        })
-                    cost = time.time() - start
-                    print("train step {} training accuracy: {}; loss: {}; cost {};".format(i, accuracy, loss, cost))
+                                self.keep_prob: 1.0
+                            })
+                        all_loss += loss
+                        all_accuracy += accuracy
+                    cost_time = time.time() - start_time
+                    print("test on step {} ; loss: {:.5f}; accuracy: {:.3f} cost time {:.2f};"
+                          .format(i, all_loss / 1000, all_accuracy /1000, cost_time))
+                    start_time = time.time()
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
@@ -146,9 +177,10 @@ def set_parser():
 def main():
     # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     # test_get_data()
-    train_batch = get_input_data(batch_size=32)
+    train_batch = get_train_data(batch_size=32)
+    val_batch = get_val_data(batch_size=40)
     vgg = VGG16()
-    vgg.train(train_batch)
+    vgg.train(train_batch, val_batch, max_iter=200000)
     pass
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from deepclothing.util import config_utils
 
 class CovertToJson(object):
     # deepfashion root dir
-    _base_dir = config_utils.get_global("deepfashion_root_dir")
+    _data_root_dir = config_utils.get_global("deepfashion_root_dir")
     # deepfashion category anno 标注文件目录
     _anno_dir = "Category and Attribute Prediction Benchmark/Anno/"
     # 划分训练，测试还有泛化数据集
@@ -31,7 +31,7 @@ class CovertToJson(object):
 
     # 从deepfashion的list_category_cloth.txt中获取类别字典
     def get_category_dict(self):
-        file_path = os.path.join(self._base_dir, self._list_category_cloth_path)
+        file_path = os.path.join(self._data_root_dir, self._list_category_cloth_path)
         with open(file_path, "r") as file:
             datas = file.readlines()[2:]
             category_dict = {line.strip().split()[0]: index for index, line in enumerate(datas)}
@@ -39,14 +39,14 @@ class CovertToJson(object):
 
     # 从deepfashion的list_category_cloth.txt中获取类别数组
     def get_category_list(self):
-        file_path = os.path.join(self._base_dir, self._list_category_cloth_path)
+        file_path = os.path.join(self._data_root_dir, self._list_category_cloth_path)
         with open(file_path, "r") as file:
             datas = file.readlines()[2:]
             category_list = [line.strip().split()[0] for line in datas]
         return category_list
 
     def get_eval_dict(self):
-        file_path = os.path.join(self._base_dir, self._list_eval_path)
+        file_path = os.path.join(self._data_root_dir, self._list_eval_path)
         with open(file_path, "r") as file:
             datas = file.readlines()[2:]
             eval_dict = {line.strip().split()[0]: line.strip().split()[1] for line in datas}
@@ -54,8 +54,8 @@ class CovertToJson(object):
 
     # 格式[{categoryNum:1,bbox:[x0,y0,width,height],path:"xxx/yyy/zz.jpg"},...]
     def get_all_list(self):
-        bbox_file_path = os.path.join(self._base_dir, self._list_bbox_path)
-        image_path = os.path.join(self._base_dir, self._list_category_image_path)
+        bbox_file_path = os.path.join(self._data_root_dir, self._list_bbox_path)
+        image_path = os.path.join(self._data_root_dir, self._list_category_image_path)
         with open(bbox_file_path, "r") as bb_image_file, open(image_path, "r") as image_file:
             category_dict = self.get_category_dict()
             bb_image_list = [line.split() for line in bb_image_file.readlines()]
