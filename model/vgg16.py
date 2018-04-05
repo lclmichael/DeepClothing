@@ -135,7 +135,7 @@ class VGG16(object):
                         self.y_truth: train_batch[1],
                         self.keep_prob: 0.5
                     })
-                if i % 10 == 0:
+                if i % 10 == 0 and i > 0:
                     loss = sess.run(
                         loss_tensor,
                         feed_dict={
@@ -146,7 +146,7 @@ class VGG16(object):
                     cost_time = time.time() - start_time
                     print("train on step {} ; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
                     start_time = time.time()
-                if i % 100 == 0:
+                if i % 100 == 0 && i > 0:
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
@@ -155,8 +155,8 @@ class VGG16(object):
                         loss, accuracy = sess.run(
                             [loss_tensor, accuracy_tensor],
                             feed_dict={
-                                self.x: train_batch[0],
-                                self.y_truth: train_batch[1],
+                                self.x: val_batch[0],
+                                self.y_truth: val_batch[1],
                                 self.keep_prob: 1.0
                             })
                         all_loss += loss
