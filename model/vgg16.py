@@ -119,7 +119,25 @@ class VGG16(object):
         accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, loss, accuracy
 
-    def train(self, train_batch_tenosr, val_batch_tensor, lr=1e-3, stddev=1e-2, max_iter=200000):
+    def train(self,
+              train_batch_tenosr,
+              val_batch_tensor,
+              lr=1e-3,
+              stddev=1e-2,
+              max_iter=200000,
+              print_interval=100,
+              val_interval=2000):
+        """
+
+        :param train_batch_tenosr:
+        :param val_batch_tensor:
+        :param lr:
+        :param stddev:
+        :param max_iter:
+        :param print_interval:
+        :param val_interval:
+        :return:
+        """
         train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -135,7 +153,7 @@ class VGG16(object):
                         self.y_truth: train_batch[1],
                         self.keep_prob: 0.5
                     })
-                if i % 10 == 0 and i > 0:
+                if i % print_interval == 0 and i > 0:
                     loss = sess.run(
                         loss_tensor,
                         feed_dict={
@@ -144,9 +162,9 @@ class VGG16(object):
                             self.keep_prob:1.0
                         })
                     cost_time = time.time() - start_time
-                    print("train on step {} ; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
+                    print("train on step {}; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
                     start_time = time.time()
-                if i % 100 == 0 and i > 0:
+                if i % val_interval == 0 and i > 0:
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
@@ -171,6 +189,8 @@ def set_parser():
     parser.add_argument("-lr", action="store", default=1e-3, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
+    parser.add_argument("-print_interval", action="store", default=100, type=int, help="print interval")
+    parser.add_argument("-val_interval", action="store", default=2000, type=int, help="val interval")
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
 
@@ -181,10 +201,18 @@ def main():
     lr = FLAGS.lr
     stddev = FLAGS.stddev
     max_iter = FLAGS.iter
+    print_interval = FLAGS.print_interval
+    val_interval = FLAGS.val_interval
     train_batch = get_train_data(batch_size=32)
     val_batch = get_val_data(batch_size=16)
     vgg = VGG16()
-    vgg.train(train_batch, val_batch, lr=lr, stddev=stddev, max_iter=max_iter)
+    vgg.train(train_batch,
+              val_batch,
+              lr=lr,
+              stddev=stddev,
+              max_iter=max_iter,
+              print_interval=print_interval,
+              val_interval=val_interval)
     pass
 
 if __name__ == '__main__':
