@@ -26,7 +26,7 @@ def max_pool(bottom, name):
         name=name
     )
 
-def conv_layer(bottom, input_size, output_size, stddev=1e-2, is_train=True, name="conv_layer"):
+def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="conv_layer"):
     with tf.variable_scope(name):
         weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
         bias = get_bias([output_size])
@@ -84,29 +84,30 @@ class VGG16(object):
         self.x = tf.placeholder(dtype=tf.float32, shape=[None, 224, 224, 3])
         self.y_truth = tf.placeholder(dtype=tf.float32, shape=[None, self._output_size])
         self.keep_prob = tf.placeholder(dtype=tf.float32, name="keep_prob")
+        self.is_train = tf.placeholder(dtype=tf.bool, name="is_train")
 
     def get_model(self, lr=1e-3, stddev=1e-2):
-        conv1_1 = conv_layer(self.x, 3, 64, stddev=stddev, name="conv1_1")
-        conv1_2 = conv_layer(conv1_1, 64, 64, name="conv1_2")
+        conv1_1 = conv_layer(self.x, 3, 64, self.is_train, stddev=stddev, name="conv1_1")
+        conv1_2 = conv_layer(conv1_1, 64, 64, self.is_train, name="conv1_2")
         pool1 = max_pool(conv1_2, "pool1")
 
-        conv2_1 = conv_layer(pool1, 64, 128, stddev=stddev, name="conv2_1")
-        conv2_2 = conv_layer(conv2_1, 128, 128, stddev=stddev, name="conv2_2")
+        conv2_1 = conv_layer(pool1, 64, 128, self.is_train, stddev=stddev, name="conv2_1")
+        conv2_2 = conv_layer(conv2_1, 128, 128, self.is_train, stddev=stddev, name="conv2_2")
         pool2 = max_pool(conv2_2, "pool2")
 
-        conv3_1 = conv_layer(pool2, 128, 256, stddev=stddev, name="conv3_1")
-        conv3_2 = conv_layer(conv3_1, 256, 256, stddev=stddev, name="conv3_2")
-        conv3_3 = conv_layer(conv3_2, 256, 256, stddev=stddev, name="conv3_3")
+        conv3_1 = conv_layer(pool2, 128, 256, self.is_train, stddev=stddev, name="conv3_1")
+        conv3_2 = conv_layer(conv3_1, 256, 256, self.is_train, stddev=stddev, name="conv3_2")
+        conv3_3 = conv_layer(conv3_2, 256, 256, self.is_train, stddev=stddev, name="conv3_3")
         pool3 = max_pool(conv3_3, "pool3")
 
-        conv4_1 = conv_layer(pool3, 256, 512, stddev=stddev, name="conv4_1")
-        conv4_2 = conv_layer(conv4_1, 512, 512, stddev=stddev, name="conv4_2")
-        conv4_3 = conv_layer(conv4_2, 512, 512, stddev=stddev, name="conv4_3")
+        conv4_1 = conv_layer(pool3, 256, 512, self.is_train, stddev=stddev, name="conv4_1")
+        conv4_2 = conv_layer(conv4_1, 512, 512, self.is_train, stddev=stddev, name="conv4_2")
+        conv4_3 = conv_layer(conv4_2, 512, 512, self.is_train, stddev=stddev, name="conv4_3")
         pool4 = max_pool(conv4_3, "pool4")
 
-        conv5_1 = conv_layer(pool4, 512, 512, stddev=stddev, name="conv5_1")
-        conv5_2 = conv_layer(conv5_1, 512, 512, stddev=stddev, name="conv5_2")
-        conv5_3 = conv_layer(conv5_2, 512, 512, stddev=stddev, name="conv5_3")
+        conv5_1 = conv_layer(pool4, 512, 512, self.is_train, stddev=stddev, name="conv5_1")
+        conv5_2 = conv_layer(conv5_1, 512, 512, self.is_train, stddev=stddev, name="conv5_2")
+        conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
         fc1 = fc_layer(pool5, 4096, keep_prob=self.keep_prob, stddev=stddev, name="fc1")
@@ -154,7 +155,8 @@ class VGG16(object):
                     feed_dict={
                         self.x: train_batch[0],
                         self.y_truth: train_batch[1],
-                        self.keep_prob: 0.5
+                        self.keep_prob: 0.5,
+                        self.is_train: True
                     })
                 if i % print_interval == 0 and i > 0:
                     loss = sess.run(
@@ -162,7 +164,8 @@ class VGG16(object):
                         feed_dict={
                             self.x: train_batch[0],
                             self.y_truth: train_batch[1],
-                            self.keep_prob:1.0
+                            self.keep_prob:1.0,
+                            self.is_train:True
                         })
                     cost_time = time.time() - start_time
                     print("train on step {}; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
@@ -178,7 +181,8 @@ class VGG16(object):
                             feed_dict={
                                 self.x: val_batch[0],
                                 self.y_truth: val_batch[1],
-                                self.keep_prob: 1.0
+                                self.keep_prob: 1.0,
+                                self.is_train: False
                             })
                         all_loss += loss
                         all_accuracy += accuracy
