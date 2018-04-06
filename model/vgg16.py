@@ -83,7 +83,6 @@ class VGG16(object):
         self._output_size = output_size
         self.x = tf.placeholder(dtype=tf.float32, shape=[None, 224, 224, 3])
         self.y_truth = tf.placeholder(dtype=tf.float32, shape=[None, self._output_size])
-        self.keep_prob = tf.placeholder(dtype=tf.float32, name="keep_prob")
         self.is_train = tf.placeholder(dtype=tf.bool, name="is_train")
 
     def get_model(self, lr=1e-3, stddev=1e-2):
@@ -131,17 +130,7 @@ class VGG16(object):
               max_iter=200000,
               print_interval=100,
               val_interval=2000):
-        """
 
-        :param train_batch_tenosr:
-        :param val_batch_tensor:
-        :param lr:
-        :param stddev:
-        :param max_iter:
-        :param print_interval:
-        :param val_interval:
-        :return:
-        """
         train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -155,7 +144,6 @@ class VGG16(object):
                     feed_dict={
                         self.x: train_batch[0],
                         self.y_truth: train_batch[1],
-                        self.keep_prob: 0.5,
                         self.is_train: True
                     })
                 if i % print_interval == 0 and i > 0:
@@ -164,7 +152,6 @@ class VGG16(object):
                         feed_dict={
                             self.x: train_batch[0],
                             self.y_truth: train_batch[1],
-                            self.keep_prob:1.0,
                             self.is_train:True
                         })
                     cost_time = time.time() - start_time
@@ -181,8 +168,7 @@ class VGG16(object):
                             feed_dict={
                                 self.x: val_batch[0],
                                 self.y_truth: val_batch[1],
-                                self.keep_prob: 1.0,
-                                self.is_train: False
+                                self.is_train: True
                             })
                         all_loss += loss
                         all_accuracy += accuracy
