@@ -36,18 +36,18 @@ def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="con
         relu = tf.nn.relu(bn)
         return relu
 
-def fc_layer(bottom, output_size, stddev=1e-2, keep_prob=None, name="fc_layer"):
+def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_layer"):
     with tf.variable_scope(name):
         flatten = tf.layers.flatten(bottom)
         weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
         add_bias = tf.nn.bias_add(fc, bias=bias)
-        if keep_prob is None:
-            return add_bias
-        relu = tf.nn.relu(add_bias)
-        drop = tf.nn.dropout(relu, keep_prob=keep_prob)
-        return drop
+        if is_hidden:
+            bn = tf.layers.batch_normalization(add_bias, training=is_train)
+            relu = tf.nn.relu(bn)
+            return relu
+        return add_bias
 
 def get_train_data(data_root_dir=None, json_path ="../data/prediction/json", batch_size=32):
     pr = PredictionReader()
@@ -110,9 +110,9 @@ class VGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        fc1 = fc_layer(pool5, 4096, keep_prob=self.keep_prob, stddev=stddev, name="fc1")
-        fc2 = fc_layer(fc1, 4096, keep_prob=self.keep_prob, stddev=stddev, name="fc2")
-        fc3 = fc_layer(fc2, self._output_size, keep_prob=self.keep_prob, stddev=stddev, name="fc3")
+        fc1 = fc_layer(pool5, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc1")
+        fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc2")
+        fc3 = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc3")
         y = tf.nn.softmax(fc3)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
         loss = tf.reduce_mean(cross_entropy)
