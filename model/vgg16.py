@@ -26,13 +26,14 @@ def max_pool(bottom, name):
         name=name
     )
 
-def conv_layer(bottom, input_size, output_size, stddev=1e-2, name="conv_layer"):
+def conv_layer(bottom, input_size, output_size, stddev=1e-2, is_train=True, name="conv_layer"):
     with tf.variable_scope(name):
-        weight = get_weight([3, 3, input_size, output_size], stddev=1e-2, name="filter")
+        weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
         bias = get_bias([output_size])
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
         add_bias = tf.nn.bias_add(convd, bias=bias)
-        relu = tf.nn.relu(add_bias)
+        bn = tf.layers.batch_normalization(add_bias, training=is_train)
+        relu = tf.nn.relu(bn)
         return relu
 
 def fc_layer(bottom, output_size, stddev=1e-2, keep_prob=None, name="fc_layer"):
@@ -114,7 +115,9 @@ class VGG16(object):
         y = tf.nn.softmax(fc3)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
         loss = tf.reduce_mean(cross_entropy)
-        train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
+        extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(extra_update_ops):
+            train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, loss, accuracy
