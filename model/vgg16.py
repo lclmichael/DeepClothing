@@ -193,6 +193,8 @@ class VGG16(object):
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run test vgg16 model")
+    parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
+    parser.add_argument("-val_batch_size", action="store", default=16, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
@@ -210,8 +212,10 @@ def main():
     max_iter = FLAGS.iter
     print_interval = FLAGS.print_interval
     val_interval = FLAGS.val_interval
-    train_batch = get_train_data(batch_size=32)
-    val_batch = get_val_data(batch_size=16)
+    train_batch_size = FLAGS.train_batch_size
+    val_batch_size = FLAGS.val_batch_size
+    train_batch = get_train_data(batch_size=train_batch_size)
+    val_batch = get_val_data(batch_size=val_batch_size)
     vgg = VGG16()
     vgg.train(train_batch,
               val_batch,
