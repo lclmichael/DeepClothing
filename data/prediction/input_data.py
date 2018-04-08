@@ -10,10 +10,15 @@ from deepclothing.util import json_utils
 from deepclothing.util import image_utils
 from deepclothing.util import config_utils
 
-def decode_original_image(image, label):
+def decode_original_image(image, label, bbox):
     image = tf.read_file(image)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    x = bbox[0]
+    y = bbox[1]
+    width = bbox[2] - bbox[0]
+    height = bbox[3] - bbox[1]
+    image = tf.image.crop_to_bounding_box(image, y, x, height, width)
     image = tf.image.resize_images(image, [224, 224])
     label = tf.one_hot(label, 50)
     label = tf.cast(label, dtype=tf.float32)
@@ -28,6 +33,12 @@ def get_iterator(tensors, batch_size=32, threads=4, num_epochs=-1, is_shuffle=Fa
     iterator = dataset.make_one_shot_iterator()
     return iterator.get_next()
 
+def get_data(name="train", batch_size=16, is_shuffle=True, data_root_dir=None, json_path=None):
+    pr = PredictionReader()
+    pr.set_dir(data_root_dir, json_path)
+    train_batch = pr.get_batch_from_json("prediction_" + name + ".json", batch_size, is_shuffle=is_shuffle)
+    return train_batch
+
 class PredictionReader(object):
     # deepfashion root dir
     _data_root_dir = config_utils.get_global("deepfashion_root_dir")
@@ -36,40 +47,63 @@ class PredictionReader(object):
 
     _json_dir = "./json/"
 
+    _category_chs = "prediction_category_chs.json"
+
+    _category_list = "prediction_category.json"
+
     def set_dir(self, data_root_dir=None, json_dir=None):
         if data_root_dir is not None:
             self._data_root_dir = data_root_dir
         if json_dir is not None:
             self._json_dir = json_dir
 
+    def get_category_chs_list(self):
+        file_path = os.path.join(self._json_dir, self._category_chs)
+        data = json_utils.read_json_file(file_path)
+        return data
+
+    def get_category_list(self):
+        file_path = os.path.join(self._json_dir, self._category_list)
+        data = json_utils.read_json_file(file_path)
+        return data
+
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_batch_from_json(self, json_name, batch_size=32, is_shuffle=True):
         data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
-        np.random.shuffle(data)
+        if is_shuffle:
+            np.random.shuffle(data)
         img_list = []
         label_list = []
+        bbox_list = []
         for item in data:
             img_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
+            bbox_list.append(item["bbox"])
 
-        tensors = (img_list, label_list)
+        tensors = (img_list, label_list, bbox_list)
         if batch_size == -1:
             batch_size = len(img_list)
         batch = get_iterator(tensors, batch_size=batch_size, is_shuffle=is_shuffle)
         return batch
 
     def test_batch(self):
-        train_json_file = "prediction_train.json"
-        batch_size = 32
-        batch = self.get_batch_from_json(train_json_file, batch_size)
+        batch_size = 5
+        #中文名类别
+        chs_list = self.get_category_chs_list()
+        category_list = self.get_category_list()
+        batch_tensor = get_data("train", batch_size=batch_size, is_shuffle=True)
         with tf.Session() as sess:
-            img_batch, label_batch = sess.run(batch)
-            for i in range(batch_size):
-                print(label_batch[i])
-                image_utils.show_image(img_batch[i])
+            for i in range(100):
+                img_batch, label_batch = sess.run(batch_tensor)
+                print("image batch size: {}, label batch size: {}".format(len(img_batch), len(label_batch)))
+                for j in range(2):
+                    index = np.argmax(label_batch[j])
+                    print(index, chs_list[index], category_list[index])
+                    image_utils.show_image(img_batch[j])
 
 def main():
     pr = PredictionReader()
+    # print(pr.get_category_chs_list())
     pr.test_batch()
 
 if __name__ == '__main__':

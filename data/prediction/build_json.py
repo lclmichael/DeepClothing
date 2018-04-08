@@ -17,6 +17,8 @@ class CovertToJson(object):
 
     #类别信息标注文件
     _list_category_cloth_path = os.path.join(_anno_dir, "list_category_cloth.txt")
+    #中文标注文件
+    _list_category_cloth_chn_path = os.path.join(_anno_dir, "list_category_cloth_chs.txt")
     #图片分类标注文件
     _list_category_image_path = os.path.join(_anno_dir, "list_category_img.txt")
     #候选框标注文件
@@ -28,6 +30,13 @@ class CovertToJson(object):
 
     def set_dir(self, dir_name):
         self._json_dir = dir_name
+
+    def get_category_chn_list(self):
+        file_path = os.path.join(self._data_root_dir, self._list_category_cloth_chn_path)
+        with open(file_path, "r", encoding="utf-8") as file:
+            datas = file.readlines()
+            category_list = [line.strip().split()[0] for line in datas]
+        return category_list
 
     # 从deepfashion的list_category_cloth.txt中获取类别字典
     def get_category_dict(self):
@@ -68,7 +77,6 @@ class CovertToJson(object):
                 cateNum = category_dict[cateName]
                 jsonObj = {"id":n-2, "path": path, "bbox": bbox, "categoryNum": cateNum}
                 all_list.append(jsonObj)
-
         return all_list
 
     def get_partition_list(self, all_list):
@@ -88,11 +96,10 @@ class CovertToJson(object):
 
     def build_all_json_file(self):
         category_list = self.get_category_list()
+        chn_list = self.get_category_chn_list()
         all_list = self.get_all_list()
         train_list, val_list, test_list = self.get_partition_list(all_list)
-        print(len(train_list))
-        print(len(val_list))
-        print(len(test_list))
+        json_utils.write_json_file(chn_list, self._json_dir, "prediction_category_chs.json")
         json_utils.write_json_file(category_list, self._json_dir, "prediction_category.json")
         json_utils.write_json_file(all_list, self._json_dir, "prediction_all.json")
         json_utils.write_json_file(train_list, self._json_dir, "prediction_train.json")

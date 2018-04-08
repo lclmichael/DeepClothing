@@ -7,8 +7,9 @@ import argparse
 
 import tensorflow as tf
 
+import deepclothing.data.prediction.input_data as input_data
 from deepclothing.util import image_utils
-from deepclothing.data.prediction.input_data import PredictionReader
+
 
 # filter, fully-connector layer weight
 def get_weight(shape, stddev=1e-2, name="weight"):
@@ -48,32 +49,6 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
             relu = tf.nn.relu(bn)
             return relu
         return add_bias
-
-def get_train_data(data_root_dir=None, json_path ="../data/prediction/json", batch_size=32):
-    pr = PredictionReader()
-    pr.set_dir(data_root_dir, json_path)
-    train_batch = pr.get_batch_from_json("prediction_train.json", batch_size)
-    return train_batch
-
-def get_val_data(data_root_dir=None, json_path="../data/prediction/json", batch_size=32):
-    pr = PredictionReader()
-    pr.set_dir(data_root_dir, json_path)
-    test_batch = pr.get_batch_from_json("prediction_val.json", batch_size=batch_size, is_shuffle=False)
-    return test_batch
-
-def test_get_data():
-    train_batch = get_train_data()
-    val_batch = get_val_data()
-    with tf.Session() as sess:
-        train_img_batch, train_label_batch = sess.run(train_batch)
-        val_img_batch, val_label_batch = sess.run(val_batch)
-        for i in range(3):
-            print(train_label_batch[i])
-            image_utils.show_image(train_img_batch[i])
-
-        for i in range(3):
-            print(val_label_batch[i])
-            image_utils.show_image(val_img_batch[i])
 
 class VGG16(object):
 
@@ -200,8 +175,8 @@ def main():
     val_interval = FLAGS.val_interval
     train_batch_size = FLAGS.train_batch_size
     val_batch_size = FLAGS.val_batch_size
-    train_batch = get_train_data(batch_size=train_batch_size)
-    val_batch = get_val_data(batch_size=val_batch_size)
+    train_batch = input_data.get_data("train", batch_size=train_batch_size)
+    val_batch = input_data.get_data("val", batch_size=val_batch_size)
     vgg = VGG16()
     vgg.train(train_batch,
               val_batch,
