@@ -175,8 +175,9 @@ def main():
     val_interval = FLAGS.val_interval
     train_batch_size = FLAGS.train_batch_size
     val_batch_size = FLAGS.val_batch_size
-    train_batch = input_data.get_data("train", batch_size=train_batch_size)
-    val_batch = input_data.get_data("val", batch_size=val_batch_size)
+    json_path = "../data/prediction/json"
+    train_batch = input_data.get_data("train", batch_size=train_batch_size, json_path=json_path)
+    val_batch = input_data.get_data("val", batch_size=val_batch_size, json_path=json_path)
     vgg = VGG16()
     vgg.train(train_batch,
               val_batch,
