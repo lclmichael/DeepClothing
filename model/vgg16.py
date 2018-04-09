@@ -30,10 +30,9 @@ def max_pool(bottom, name):
 def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="conv_layer"):
     with tf.variable_scope(name):
         weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
-        bias = get_bias([output_size])
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
-        add_bias = tf.nn.bias_add(convd, bias=bias)
-        bn = tf.layers.batch_normalization(add_bias, training=is_train)
+        # add_bias = tf.nn.bias_add(convd, bias=bias)
+        bn = tf.layers.batch_normalization(convd, training=is_train)
         relu = tf.nn.relu(bn)
         return relu
 
@@ -43,11 +42,11 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
         weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
-        add_bias = tf.nn.bias_add(fc, bias=bias)
         if is_hidden:
-            bn = tf.layers.batch_normalization(add_bias, training=is_train)
+            bn = tf.layers.batch_normalization(fc, training=is_train)
             relu = tf.nn.relu(bn)
             return relu
+        add_bias = tf.nn.bias_add(fc, bias=bias)
         return add_bias
 
 class VGG16(object):
