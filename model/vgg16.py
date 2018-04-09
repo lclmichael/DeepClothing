@@ -137,7 +137,7 @@ class VGG16(object):
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
-                    val_batch_size = val_batch_tensor.get_shape().as_list()[0]
+                    val_batch_size = val_batch_tensor[0].get_shape().as_list()[0]
                     val_iter = int(val_data_size / val_batch_size)
                     for j in range(val_iter):
                         val_batch = sess.run(val_batch_tensor)
