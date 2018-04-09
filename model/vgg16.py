@@ -99,13 +99,12 @@ class VGG16(object):
     def train(self,
               train_batch_tenosr,
               val_batch_tensor,
-              val_data_size=40000,
               lr=1e-3,
               stddev=1e-2,
               max_iter=200000,
               print_interval=100,
               val_interval=2000):
-
+        val_iter = 2500
         train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -137,9 +136,7 @@ class VGG16(object):
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
-                    val_batch_size = val_batch_tensor[0].get_shape().as_list()[0]
-                    val_iter = int(val_data_size / val_batch_size)
-                    for j in range(val_iter):
+                    for j in range(2500):
                         val_batch = sess.run(val_batch_tensor)
                         loss, accuracy = sess.run(
                             [loss_tensor, accuracy_tensor],
@@ -151,8 +148,8 @@ class VGG16(object):
                         all_loss += loss
                         all_accuracy += accuracy
                     cost_time = time.time() - start_time
-                    print("test on step:{}; loss:{:.5f}; accuracy:{:.3f} cost time:{:.2f}; val iter:{}; val batch size:{}"
-                          .format(i, all_loss / val_iter, all_accuracy / val_iter, cost_time, val_iter, val_batch_size))
+                    print("test on step:{}; loss:{:.5f}; accuracy:{:.3f} cost time:{:.2f};"
+                          .format(i, all_loss / val_iter, all_accuracy / val_iter, cost_time))
                     start_time = time.time()
 
 def set_parser():
