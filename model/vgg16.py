@@ -101,10 +101,10 @@ class VGG16(object):
               val_batch_tensor,
               lr=1e-3,
               stddev=1e-2,
+              val_iter=2500,
               max_iter=200000,
               print_interval=100,
               val_interval=2000):
-        val_iter = 2500
         train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -121,22 +121,23 @@ class VGG16(object):
                         self.is_train: True
                     })
                 if i % print_interval == 0 and i > 0:
-                    loss = sess.run(
-                        loss_tensor,
+                    loss, accuracy= sess.run(
+                        [loss_tensor, accuracy_tensor],
                         feed_dict={
                             self.x: train_batch[0],
                             self.y_truth: train_batch[1],
                             self.is_train:True
                         })
                     cost_time = time.time() - start_time
-                    print("train on step {}; loss: {:.5f}; cost time {:.2f};".format(i, loss, cost_time))
+                    print("train on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f};"
+                            .format(i, loss, accuracy, cost_time))
                     start_time = time.time()
 
                 if i % val_interval == 0 and i > 0:
                     start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
-                    for j in range(2500):
+                    for j in range(val_iter):
                         val_batch = sess.run(val_batch_tensor)
                         loss, accuracy = sess.run(
                             [loss_tensor, accuracy_tensor],
@@ -177,7 +178,7 @@ def main():
     val_batch_size = FLAGS.val_batch_size
     json_path = "../data/prediction/json"
     train_batch = input_data.get_data("train", batch_size=train_batch_size, json_path=json_path)
-    val_batch = input_data.get_data("val", batch_size=val_batch_size, is_shuffle=False, json_path=json_path)
+    val_batch = input_data.get_data("test", batch_size=val_batch_size, is_shuffle=False, json_path=json_path)
     vgg = VGG16()
     vgg.train(train_batch,
               val_batch,

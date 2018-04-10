@@ -79,7 +79,7 @@ class PredictionReader(object):
             img_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
             bbox_list.append(item["bbox"])
-
+        print(len(img_list))
         tensors = (img_list, label_list, bbox_list)
         if batch_size == -1:
             batch_size = len(img_list)
@@ -87,20 +87,19 @@ class PredictionReader(object):
         return batch
 
     def test_batch(self):
-        batch_size = 5
+        batch_size = 16
         #中文名类别
         chs_list = self.get_category_chs_list()
         category_list = self.get_category_list()
-        batch_tensor = get_data("train", batch_size=batch_size, is_shuffle=True)
+        batch_tensor = get_data("test", batch_size=batch_size, is_shuffle=False)
         with tf.Session() as sess:
-            for i in range(100):
+            for i in range(2500):
                 img_batch, label_batch = sess.run(batch_tensor)
                 print("image batch size: {}, label batch size: {}".format(len(img_batch), len(label_batch)))
-                for j in range(2):
+                for j in range(batch_size):
                     index = np.argmax(label_batch[j])
                     print(index, chs_list[index], category_list[index])
                     image_utils.show_image(img_batch[j])
-
 def main():
     pr = PredictionReader()
     # print(pr.get_category_chs_list())
