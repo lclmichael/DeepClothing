@@ -79,7 +79,6 @@ class PredictionReader(object):
             img_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
             bbox_list.append(item["bbox"])
-        print(len(img_list))
         tensors = (img_list, label_list, bbox_list)
         if batch_size == -1:
             batch_size = len(img_list)
