@@ -126,7 +126,7 @@ class VGG16(object):
                         feed_dict={
                             self.x: train_batch[0],
                             self.y_truth: train_batch[1],
-                            self.is_train:True
+                            self.is_train: True
                         })
                     cost_time = time.time() - start_time
                     print("train on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f};"
