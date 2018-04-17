@@ -7,8 +7,6 @@ import time
 import numpy as np
 import tensorflow as tf
 
-import matplotlib.image as mpimage
-
 from deepclothing.util import json_utils
 from deepclothing.util import image_utils
 from deepclothing.util import config_utils
@@ -35,17 +33,15 @@ def image_preprocess(image, label, bbox):
 
 #求取均值的预处理
 def mean_preprocess(image, bbox):
-    image = tf.read_file(image)
-    image = tf.image.decode_jpeg(image, channels=3)
+    image = image_utils.read_from_file(image)
     x = bbox[0]
     y = bbox[1]
     width = bbox[2] - bbox[0]
     height = bbox[3] - bbox[1]
-    image = tf.image.crop_to_bounding_box(image, y, x, height, width)
-    image = tf.image.resize_images(image, [224, 224])
-    #单张图的均值和方差
-    moment = tf.nn.moments(image, [0,1,2,3])
-    return moment
+    image = image_utils.crop_image(image, y, x, height, width)
+    image = image_utils.resize_image(image, [224, 224])
+    mean = image_utils.get_image_mean(image)
+    return mean
 
 def get_iterator(tensors, batch_size=32, threads=4, num_epochs=-1, is_shuffle=False, preprocess=image_preprocess):
     dataset = tf.data.Dataset.from_tensor_slices(tensors)
@@ -90,38 +86,44 @@ class PredictionReader(object):
         data = json_utils.read_json_file(file_path)
         return data
 
-    # get batch from json, return a tenor list [img_batch, label_batch]
-    def get_batch_from_json(self, json_name, batch_size=32, is_shuffle=True):
+    def get_json_list(self, json_name):
         data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
-        if is_shuffle:
-            np.random.shuffle(data)
-        img_list = []
+        path_list = []
         label_list = []
         bbox_list = []
         for item in data:
-            img_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
+            path_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
             bbox_list.append(item["bbox"])
-        tensors = (img_list, label_list, bbox_list)
+        return path_list, label_list, bbox_list
+
+    # get batch from json, return a tenor list [img_batch, label_batch]
+    def get_batch_from_json(self, json_name, batch_size=32, is_shuffle=True, ):
+        path_list, label_list, bbox_list = self.get_json_list(json_name)
+        tensors = (path_list, label_list, bbox_list)
         if batch_size == -1:
-            batch_size = len(img_list)
+            batch_size = len(path_list)
         batch = get_iterator(tensors, batch_size=batch_size, is_shuffle=is_shuffle)
         return batch
 
+    def get_mean_with_tf(self, json_name):
+        pass
+
     def get_mean_without_tf(self, json_name):
-        data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
+        path_list, label_list, bbox_list = self.get_json_list(json_name)
+        data_len = len(path_list)
         mean_list = []
-        i = 0
-        for item in data:
-            i += 1
-            name = os.path.join(self._data_root_dir, self._image_dir, item["path"])
-            bbox = item["bbox"]
+        for i in range(data_len):
+            image_path = path_list[i]
+            bbox = bbox_list[i]
             x = bbox[0]
             y = bbox[1]
             width = bbox[2] - bbox[0]
             height = bbox[3] - bbox[1]
-            img = mpimage.imread(name)
-            img = image_utils.crop_and_resize_image(img, (224, 224), y, x, height, width)
+            img = image_utils.read_from_file(image_path)
+            img = image_utils.crop_image(img, y, x, height, width)
+            img = image_utils.resize_image(img, (224, 224))
+            image_utils.show_image(img)
             mean = image_utils.get_image_mean(img)
             mean_list.append(mean)
             print("done for %d" % i)
@@ -140,9 +142,7 @@ class PredictionReader(object):
                 for j in range(batch_size):
                     index = np.argmax(label_batch[j])
                     print(img_batch[j])
-
                     image_utils.show_image(img_batch[j])
-
 
 def main():
     pr = PredictionReader()

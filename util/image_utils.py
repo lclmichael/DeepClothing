@@ -7,6 +7,9 @@ import matplotlib.image as mpimage
 
 from scipy import misc
 
+def read_from_file(file_path):
+    return mpimage.imread(file_path)
+
 def show_image(img, num=0):
     plt.figure(num)
     plt.imshow(img)
@@ -22,12 +25,7 @@ def resize_image(img, size):
 
 #裁剪图片
 def crop_image(img, start_y, start_x, height, width):
-    return img[start_y:height, start_x:width]
-
-#裁剪并重放缩图片
-def crop_and_resize_image(img, size, start_y, start_x, height, width):
-    img = resize_image(img, size)
-    return crop_image(img, start_y, start_x, height, width)
+    return img[start_y:start_y+height, start_x:start_x+width]
 
 #获取单张图片均值
 def get_image_mean(img):
