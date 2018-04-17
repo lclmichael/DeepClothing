@@ -123,7 +123,6 @@ class PredictionReader(object):
             img = image_utils.read_from_file(image_path)
             img = image_utils.crop_image(img, y, x, height, width)
             img = image_utils.resize_image(img, (224, 224))
-            image_utils.show_image(img)
             mean = image_utils.get_image_mean(img)
             mean_list.append(mean)
             print("done for %d" % i)
