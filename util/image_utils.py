@@ -24,8 +24,8 @@ def resize_image(img, size):
     return misc.imresize(img, size)
 
 #裁剪图片
-def crop_image(img, start_y, start_x, height, width):
-    return img[start_y:start_y+height, start_x:start_x+width]
+def crop_image(img, y1, x1, y2, x2):
+    return img[y1:y2, x1:x2]
 
 #获取单张图片均值
 def get_image_mean(img):

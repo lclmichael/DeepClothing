@@ -67,16 +67,25 @@ class CovertToJson(object):
         image_path = os.path.join(self._data_root_dir, self._list_category_image_path)
         with open(bbox_file_path, "r") as bb_image_file, open(image_path, "r") as image_file:
             category_dict = self.get_category_dict()
-            bb_image_list = [line.split() for line in bb_image_file.readlines()]
-            image_List = [line.split() for line in image_file.readlines()]
+            bbox_image_list = [line.split() for line in bb_image_file.readlines()]
+            category_image_list = [line.split() for line in image_file.readlines()]
             all_list = []
-            for n in range(2, len(bb_image_list)):
-                path = image_List[n][0]
-                bbox = [int(x) for x in bb_image_list[n][1:]]
+            category_label_dict  = {}
+            for i in range(2, len(category_image_list)):
+                path=category_image_list[i][0]
                 cateName = path.split("/")[1].split("_")[-1]
                 cateNum = category_dict[cateName]
-                jsonObj = {"id":n-2, "path": path, "bbox": bbox, "categoryNum": cateNum}
+                category_label_dict[path] = cateNum
+
+            for i in range(2, len(bbox_image_list)):
+                path = bbox_image_list[i][0]
+                bbox = [int(x) for x in bbox_image_list[i][1:]]
+                #这张图尺寸w150 h225 bbox[84, 40, 184, 211] x2是184，比宽度还长,应为120
+                if path == "img/Striped_A-Line_Dress/img_00000003.jpg":
+                    bbox[2] = 120
+                jsonObj = {"id":i-2, "path": path, "bbox": bbox, "categoryNum": category_label_dict[path]}
                 all_list.append(jsonObj)
+            print(len(all_list))
         return all_list
 
     def get_partition_list(self, all_list):
@@ -121,6 +130,6 @@ def main():
     if json_dir != "":
         dc.set_dir(json_dir)
     dc.build_all_json_file()
-
+    # dc.get_all_list()
 if __name__ == '__main__':
     main()
