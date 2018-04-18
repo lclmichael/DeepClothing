@@ -92,14 +92,20 @@ class PredictionReader(object):
         path_list = []
         label_list = []
         bbox_list = []
-        for item in data:
+        for index, item in enumerate(data):
+            # if "Striped_A-Line_Dress" in item["path"]:
+            #     path = os.path.join(self._data_root_dir, self._image_dir, item["path"])
+            #     shape = image_utils.read_from_file(path).shape
+            #     print(index, path, shape, item["bbox"], item["categoryNum"])
+            # else:
+            #     continue
             path_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
             bbox_list.append(item["bbox"])
         return path_list, label_list, bbox_list
 
     # get batch from json, return a tenor list [img_batch, label_batch]
-    def get_tensor_batch_from_json(self, json_name, batch_size=32, is_shuffle=True, ):
+    def get_tensor_batch_from_json(self, json_name, batch_size=32, is_shuffle=True):
         path_list, label_list, bbox_list = self.get_json_list(json_name)
         datas = (path_list, label_list, bbox_list)
         if batch_size == -1:
@@ -122,7 +128,7 @@ class PredictionReader(object):
 
             print("result: {}".format(all_mean / len(path_list)))
 
-    def get_mean_without_tf(self, json_name):
+    def get_mean_with_plt(self, json_name):
         path_list, label_list, bbox_list = self.get_json_list(json_name)
         data_len = len(path_list)
         mean_list = []
@@ -159,8 +165,9 @@ def main():
     pr = PredictionReader()
     # print(pr.get_category_chs_list())
     start = time.time()
-    # pr.get_mean_without_tf(json_name="prediction_train.json")
+    # pr.get_mean_with_plt(json_name="prediction_train.json")
     pr.get_mean_with_tf(json_name="prediction_train.json")
+    # pr.get_json_list(json_name="prediction_train.json")
     # pr.test_batch()
 
     print("cost time {}".format(time.time() - start))

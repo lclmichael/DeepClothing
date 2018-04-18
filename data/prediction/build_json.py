@@ -67,25 +67,34 @@ class CovertToJson(object):
         image_path = os.path.join(self._data_root_dir, self._list_category_image_path)
         with open(bbox_file_path, "r") as bb_image_file, open(image_path, "r") as image_file:
             category_dict = self.get_category_dict()
-            bbox_image_list = [line.split() for line in bb_image_file.readlines()]
-            category_image_list = [line.split() for line in image_file.readlines()]
+            bbox_image_list = [line.split() for line in bb_image_file.readlines()][2:]
+            category_image_list = [line.split() for line in image_file.readlines()][2:]
             all_list = []
             category_label_dict  = {}
-            for i in range(2, len(category_image_list)):
-                path=category_image_list[i][0]
+            for category_image in category_image_list:
+                path=category_image[0]
                 cateName = path.split("/")[1].split("_")[-1]
                 cateNum = category_dict[cateName]
                 category_label_dict[path] = cateNum
 
-            for i in range(2, len(bbox_image_list)):
-                path = bbox_image_list[i][0]
-                bbox = [int(x) for x in bbox_image_list[i][1:]]
-                #这张图尺寸w150 h225 bbox[84, 40, 184, 211] x2是184，比宽度还长,应为120
+            for index, bbox_image in enumerate(bbox_image_list):
+                path = bbox_image[0]
+                bbox = [int(x) for x in bbox_image[1:]]
+                #img/Striped_A-Line_Dress/img_00000003.jpg w150 h225 [84, 40, 184, 211] 实际:x2应为120
+                #img/Striped_A-Line_Dress/img_00000006.jpg w300 h273 [1, 1, 200, 300] 实际:[74, 44, 157, 187]
+                #img/Striped_A-Line_Dress/img_00000009.jpg w202 h300 [5, 30, 209, 300] 实际:[45, 37, 144, 205]
+                #img/Striped_A-Line_Dress/img_00000010.jpg w200 h300 [1, 1, 225, 299] 实际:[35, 14, 181, 245]
                 if path == "img/Striped_A-Line_Dress/img_00000003.jpg":
                     bbox[2] = 120
-                jsonObj = {"id":i-2, "path": path, "bbox": bbox, "categoryNum": category_label_dict[path]}
+                elif path == "img/Striped_A-Line_Dress/img_00000006.jpg":
+                    bbox = [74, 44, 157, 187]
+                elif path == "img/Striped_A-Line_Dress/img_00000009.jpg":
+                    bbox = [45, 37, 144, 205]
+                elif path == "img/Striped_A-Line_Dress/img_00000010.jpg":
+                    bbox = [35, 14, 181, 245]
+                jsonObj = {"id":index, "path": path, "bbox": bbox, "categoryNum": category_label_dict[path]}
                 all_list.append(jsonObj)
-            print(len(all_list))
+
         return all_list
 
     def get_partition_list(self, all_list):
