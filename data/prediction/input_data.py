@@ -11,9 +11,9 @@ from deepclothing.util import json_utils
 from deepclothing.util import image_utils
 from deepclothing.util import config_utils
 
-global_mean = 100
+bbox_mean = 157
 
-global_variance = 100
+bbox_variance = 100
 
 #预处理
 def image_preprocess(path, label, bbox):
@@ -26,7 +26,7 @@ def image_preprocess(path, label, bbox):
     height = bbox[3] - bbox[1]
     image = tf.image.crop_to_bounding_box(image, y, x, height, width)
     image = tf.image.resize_images(image, [224, 224])
-    image = tf.subtract(image, global_mean)
+    image = tf.subtract(image, bbox_mean)
     # image = tf.div(tf.subtract(image, global_mean) ,global_variance)
     label = tf.one_hot(label, 50)
     return image, label
@@ -166,9 +166,9 @@ def main():
     # print(pr.get_category_chs_list())
     start = time.time()
     # pr.get_mean_with_plt(json_name="prediction_train.json")
-    pr.get_mean_with_tf(json_name="prediction_train.json")
+    # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # pr.test_batch()
+    pr.test_batch()
 
     print("cost time {}".format(time.time() - start))
 
