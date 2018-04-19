@@ -38,14 +38,6 @@ class CovertToJson(object):
             category_list = [line.strip().split()[0] for line in datas]
         return category_list
 
-    # 从deepfashion的list_category_cloth.txt中获取类别字典
-    def get_category_dict(self):
-        file_path = os.path.join(self._data_root_dir, self._list_category_cloth_path)
-        with open(file_path, "r") as file:
-            datas = file.readlines()[2:]
-            category_dict = {line.strip().split()[0]: index for index, line in enumerate(datas)}
-        return category_dict
-
     # 从deepfashion的list_category_cloth.txt中获取类别数组
     def get_category_list(self):
         file_path = os.path.join(self._data_root_dir, self._list_category_cloth_path)
@@ -66,16 +58,13 @@ class CovertToJson(object):
         bbox_file_path = os.path.join(self._data_root_dir, self._list_bbox_path)
         image_path = os.path.join(self._data_root_dir, self._list_category_image_path)
         with open(bbox_file_path, "r") as bb_image_file, open(image_path, "r") as image_file:
-            category_dict = self.get_category_dict()
             bbox_image_list = [line.split() for line in bb_image_file.readlines()][2:]
             category_image_list = [line.split() for line in image_file.readlines()][2:]
             all_list = []
             category_label_dict  = {}
             for category_image in category_image_list:
                 path=category_image[0]
-                cateName = path.split("/")[1].split("_")[-1]
-                cateNum = category_dict[cateName]
-                category_label_dict[path] = cateNum
+                category_label_dict[path] = int(category_image[1]) - 1
 
             for index, bbox_image in enumerate(bbox_image_list):
                 path = bbox_image[0]

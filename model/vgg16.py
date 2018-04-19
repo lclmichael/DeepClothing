@@ -83,11 +83,12 @@ class VGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        fc1 = fc_layer(pool5, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc1")
-        fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc2")
-        fc3 = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc3")
-        y = tf.nn.softmax(fc3)
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc3)
+        # fc1 = fc_layer(pool5, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc1")
+        # fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc2")
+        # fc3 = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc3")
+        fc = fc_layer(pool5, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc")
+        y = tf.nn.softmax(fc)
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=fc)
         loss = tf.reduce_mean(cross_entropy)
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(extra_update_ops):
@@ -126,7 +127,7 @@ class VGG16(object):
                         feed_dict={
                             self.x: train_batch[0],
                             self.y_truth: train_batch[1],
-                            self.is_train: True
+                            self.is_train: False
                         })
                     cost_time = time.time() - start_time
                     print("train on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f};"

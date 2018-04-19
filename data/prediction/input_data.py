@@ -42,6 +42,7 @@ def mean_preprocess(path, bbox):
     image = tf.image.crop_to_bounding_box(image, y, x, height, width)
     image = tf.image.resize_images(image, [224, 224])
     mean, variance = tf.nn.moments(image, [0, 1, 2])
+    tf.nn.st
     return mean
 
 def get_iterator(datas, batch_size=32, threads=4, num_epochs=-1, is_shuffle=False, preprocess=image_preprocess):
