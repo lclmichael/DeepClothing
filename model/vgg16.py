@@ -92,7 +92,7 @@ class VGG16(object):
         loss = tf.reduce_mean(cross_entropy)
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(extra_update_ops):
-            train_step = tf.train.AdamOptimizer(lr).minimize(cross_entropy)
+            train_step = tf.train.AdamOptimizer(lr).minimize(loss)
         prediction = tf.equal(tf.argmax(y, 1), tf.argmax(self.y_truth, 1))
         accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
         return train_step, loss, accuracy

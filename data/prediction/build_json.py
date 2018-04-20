@@ -62,9 +62,11 @@ class CovertToJson(object):
             category_image_list = [line.split() for line in image_file.readlines()][2:]
             all_list = []
             category_label_dict  = {}
+            simple_category_list = []
             for category_image in category_image_list:
                 path=category_image[0]
                 category_label_dict[path] = int(category_image[1]) - 1
+                simple_category_list.append(path)
 
             for index, bbox_image in enumerate(bbox_image_list):
                 path = bbox_image[0]

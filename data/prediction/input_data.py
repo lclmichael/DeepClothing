@@ -42,7 +42,6 @@ def mean_preprocess(path, bbox):
     image = tf.image.crop_to_bounding_box(image, y, x, height, width)
     image = tf.image.resize_images(image, [224, 224])
     mean, variance = tf.nn.moments(image, [0, 1, 2])
-    tf.nn.st
     return mean
 
 def get_iterator(datas, batch_size=32, threads=4, num_epochs=-1, is_shuffle=False, preprocess=image_preprocess):
@@ -88,18 +87,14 @@ class PredictionReader(object):
         data = json_utils.read_json_file(file_path)
         return data
 
-    def get_json_list(self, json_name):
+    def get_json_list(self, json_name, is_shuffle=False):
         data = json_utils.read_json_file(os.path.join(self._json_dir, json_name))
+        if is_shuffle:
+            np.random.shuffle(data)
         path_list = []
         label_list = []
         bbox_list = []
         for index, item in enumerate(data):
-            # if "Striped_A-Line_Dress" in item["path"]:
-            #     path = os.path.join(self._data_root_dir, self._image_dir, item["path"])
-            #     shape = image_utils.read_from_file(path).shape
-            #     print(index, path, shape, item["bbox"], item["categoryNum"])
-            # else:
-            #     continue
             path_list.append(os.path.join(self._data_root_dir, self._image_dir, item["path"]))
             label_list.append(item["categoryNum"])
             bbox_list.append(item["bbox"])
@@ -107,7 +102,7 @@ class PredictionReader(object):
 
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_tensor_batch_from_json(self, json_name, batch_size=32, is_shuffle=True):
-        path_list, label_list, bbox_list = self.get_json_list(json_name)
+        path_list, label_list, bbox_list = self.get_json_list(json_name, is_shuffle)
         datas = (path_list, label_list, bbox_list)
         if batch_size == -1:
             batch_size = len(path_list)
