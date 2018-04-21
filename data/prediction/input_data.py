@@ -46,7 +46,7 @@ def default_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.cast(image, tf.float32)
-    image = tf.subtract(image, train_bbox_mean)
+    image = tf.subtract(image, train_mean)
     image = tf.image.resize_images(image, [224, 224])
     label = tf.one_hot(label, 50)
     return image, label
