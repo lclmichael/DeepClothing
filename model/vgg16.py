@@ -24,8 +24,7 @@ def max_pool(bottom, name):
         ksize=[1, 2, 2, 1],
         strides=[1, 2, 2, 1],
         padding="SAME",
-        name=name
-    )
+        name=name)
 
 def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="conv_layer"):
     with tf.variable_scope(name):
@@ -135,7 +134,6 @@ class VGG16(object):
                     start_time = time.time()
 
                 if i % val_interval == 0 and i > 0:
-                    start_time = time.time()
                     all_loss = 0
                     all_accuracy = 0
                     for j in range(val_iter):
