@@ -47,8 +47,8 @@ class JsonDataTools(object):
         json_utils.write_json_file(json_train_list, self._json_dir, "train.json")
         json_utils.write_json_file(json_val_list, self._json_dir, "val.json")
 
-    def get_json(self, file_name):
-        return json_utils.read_json_file(os.path.join(self._json_dir, file_name))
+    def get_json(self, json_name):
+        return json_utils.read_json_file(os.path.join(self._json_dir, json_name))
 
     def get_data_list(self, file_name, is_shuffle = False):
         json_data = self.get_json(file_name)
@@ -62,8 +62,17 @@ class JsonDataTools(object):
             label_list.append(_data["categoryNum"])
         return path_list, label_list
 
-    def get_category_list(self, file_name="category.json"):
-        return self.get_json(file_name)
+    def get_category_list(self, json_name="category.json"):
+        return self.get_json(json_name)
+
+json_data_tools = JsonDataTools()
+
+def get_json(json_name):
+    return json_data_tools.get_json(json_name)
+
+def get_category_list(json_name):
+    return json_data_tools.get_category_list(json_name)
+
 
 def main():
     jdt = JsonDataTools()
