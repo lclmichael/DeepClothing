@@ -8,7 +8,6 @@ import numpy as np
 from deepclothing.util import json_utils
 from deepclothing.util import config_utils
 
-
 class JsonDataTools(object):
     # deepfashion root dir
     _data_root_dir = config_utils.get_global("deepfashion_root_dir")
@@ -18,7 +17,6 @@ class JsonDataTools(object):
     _anno_dir = "Category and Attribute Prediction Benchmark/Anno/"
     # 划分训练，测试还有泛化数据集
     _eval_dir = "Category and Attribute Prediction Benchmark/Eval/"
-
 
     #类别信息标注文件
     _list_category_cloth_path = os.path.join(_anno_dir, "list_category_cloth.txt")

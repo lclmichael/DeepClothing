@@ -96,7 +96,7 @@ class InputData(object):
     @staticmethod
     def get_tensor_batch_from_json(json_name, batch_size=32, is_shuffle=True):
         path_list, label_list, bbox_list = json_data.get_list(json_name, is_shuffle)
-        datas = (path_list, label_list, bbox_list)
+        datas = (path_list, label_list)
         if batch_size == -1:
             batch_size = len(path_list)
         batch = get_iterator(datas, batch_size=batch_size, is_shuffle=is_shuffle)
