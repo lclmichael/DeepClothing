@@ -19,8 +19,8 @@ def image_preprocess(path, label):
     image = tf.image.decode_jpeg(image, channels=3)
     # image = tf.image.convert_image_dtype(image, dtype=tf.int64)
     image = tf.image.resize_images(image, [224, 224])
-    image = tf.cast(image, dtype=tf.uint8)
-    # image = tf.subtract(image, train_mean)
+    image = tf.cast(image, dtype=tf.float32)
+    image = tf.subtract(image, train_mean)
     label = tf.one_hot(label, 101)
     return image, label
 
