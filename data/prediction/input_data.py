@@ -135,6 +135,10 @@ class InputData(object):
                     print(category_list[index], chs_list[index])
                     image_utils.show_image(img_batch[j].astype(np.uint8))
 
+def get_tensor_data(name, batch_size=32, is_shuffle=False):
+    input_data = InputData()
+    return input_data.get_tensor_batch_from_json(name + ".json", batch_size, is_shuffle=is_shuffle)
+
 def main():
     pr = InputData()
     # print(pr.get_category_chs_list())

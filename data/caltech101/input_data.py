@@ -1,14 +1,12 @@
 # encoding=utf8
 # Author=LclMichael
 
-import os
 import time
 
 import numpy as np
 import tensorflow as tf
 
 from deepclothing.data.caltech101.json_data import JsonDataTools
-from deepclothing.util import json_utils
 from deepclothing.util import image_utils
 from deepclothing.util import config_utils
 
