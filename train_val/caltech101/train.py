@@ -13,18 +13,18 @@ learning_rate = 0.01
 
 output_size = 101
 
-max_iter = 200000
 
-print_interval = 10
-val_interval = 2000
-
-train_batch_size = 10
-val_batch_size = 10
 
 val_data_len = 810
 
-def train():
-    model = MultiClassNetwork(output_size=101)
+def train(lr=0.01,
+          stddev=0.001,
+          max_iter=200000,
+          train_batch_size=16,
+          val_batch_size=10,
+          print_interval = 10,
+          val_interval = 2000):
+    model = MultiClassNetwork(output_size=101, lr=lr, stddev=stddev)
     train_step_tensor, loss_tensor, accuracy_tensor, logtis_tensor  = model.build_model()
 
     train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size)
@@ -43,7 +43,7 @@ def train():
             sess.run(
                 train_step_tensor,
                 feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
-            if i % 10 == 0 and i > 0:
+            if i % print_interval == 0 and i > 0:
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
                 cost_time = time.time() - start_time
@@ -73,7 +73,7 @@ def print_result(name, step, loss, acc, cost_time):
 
 
 def set_parser():
-    parser = argparse.ArgumentParser(description="run train multiclass network for clatech")
+    parser = argparse.ArgumentParser(description="run train multiclass network for clatech101")
     parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
     parser.add_argument("-val_batch_size", action="store", default=16, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
@@ -85,7 +85,21 @@ def set_parser():
     return FLAGS
 
 def main():
-    train()
+    FLAGS = set_parser()
+    lr = FLAGS.lr
+    stddev = FLAGS.stddev
+    max_iter = FLAGS.iter
+    print_interval = FLAGS.print_interval
+    val_interval = FLAGS.val_interval
+    train_batch_size = FLAGS.train_batch_size
+    val_batch_size = FLAGS.val_batch_size
+    train(lr=lr,
+          stddev=stddev,
+          max_iter=max_iter,
+          train_batch_size=train_batch_size,
+          val_batch_size=val_batch_size,
+          print_interval=print_interval,
+          val_interval=val_interval)
     pass
     
 if __name__ == "__main__":
