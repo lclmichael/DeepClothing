@@ -15,7 +15,7 @@ output_size = 101
 
 val_data_len = 810
 
-def train(lr=0.01,
+def train(lr=0.005,
           stddev=0.001,
           max_iter=200000,
           train_batch_size=16,
@@ -23,7 +23,7 @@ def train(lr=0.01,
           print_interval = 10,
           val_interval = 2000):
     model = MultiClassNetwork(output_size=output_size, lr=lr, stddev=stddev)
-    train_step_tensor, loss_tensor, accuracy_tensor, logtis_tensor  = model.build_model()
+    train_step_tensor, loss_tensor, accuracy_tensor, prediction_tensor  = model.build_model()
 
     train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size)
     val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
@@ -74,7 +74,7 @@ def set_parser():
     parser = argparse.ArgumentParser(description="run train multiclass network for clatech101")
     parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
     parser.add_argument("-val_batch_size", action="store", default=10, type=int, help="val batch size")
-    parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
+    parser.add_argument("-lr", action="store", default=0.005, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
     parser.add_argument("-print_interval", action="store", default=10, type=int, help="print interval")
