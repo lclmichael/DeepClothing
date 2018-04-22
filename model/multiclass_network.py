@@ -27,7 +27,7 @@ class MultiClassNetwork(object):
             kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev))
 
         y_prediction = tf.nn.softmax(logits)
-        comparison = tf.equal(tf.argmax([y_prediction], 1), tf.argmax(self.y_truth, 1))
+        comparison = tf.equal(tf.argmax(y_prediction, 1), tf.argmax(self.y_truth, 1))
         accuracy = tf.reduce_mean(tf.cast(comparison, dtype=tf.float32))
         loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits))
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
