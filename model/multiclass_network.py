@@ -9,7 +9,7 @@ from deepclothing.model.base.lighten_vgg import LightenVGG
 #base on lighten vgg
 class MultiClassNetwork(object):
 
-    def __init__(self, output_size=101, lr=0.01, stddev=0.01):
+    def __init__(self, output_size=101, lr=0.01, stddev=0.001):
         self.input_x = tf.placeholder(dtype=tf.float32, shape=[None, 224, 224, 3])
         self.y_truth = tf.placeholder(dtype=tf.float32, shape=[None, output_size])
         self.is_train = tf.placeholder(dtype=tf.bool)
