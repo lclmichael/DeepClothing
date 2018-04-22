@@ -13,8 +13,6 @@ learning_rate = 0.01
 
 output_size = 101
 
-
-
 val_data_len = 810
 
 def train(lr=0.01,
@@ -79,7 +77,7 @@ def set_parser():
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
-    parser.add_argument("-print_interval", action="store", default=100, type=int, help="print interval")
+    parser.add_argument("-print_interval", action="store", default=10, type=int, help="print interval")
     parser.add_argument("-val_interval", action="store", default=2000, type=int, help="val interval")
     FLAGS, unknown = parser.parse_known_args()
     return FLAGS
