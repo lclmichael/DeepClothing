@@ -92,8 +92,7 @@ def calc_all(json_name):
 
 def main():
     jdt = JsonDataTools()
-    # jdt.build_json()
-    calc_all("train.json")
+    jdt.build_json()
     pass
     
 if __name__ == "__main__":
