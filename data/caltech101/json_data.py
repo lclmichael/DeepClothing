@@ -32,7 +32,9 @@ class JsonDataTools(object):
             for file_name in files:
                 image_index += 1
                 single_count += 1
-                json_data = {"id":image_index, "categoryNum":category_index, "path":os.path.join(category_name, file_name)}
+                json_data = {"id":image_index,
+                             "categoryNum":category_index,
+                             "path":os.path.join(category_name, file_name)}
                 if single_count % 10 == 0 and single_count > 0:
                     json_val_list.append(json_data)
                 else:

@@ -64,8 +64,8 @@ def get_iterator(datas, batch_size=32, threads=4, num_epochs=-1, is_shuffle=Fals
     dataset = tf.data.Dataset.from_tensor_slices(datas)
     dataset = dataset.map(preprocess, num_parallel_calls=threads)
     dataset = dataset.batch(batch_size).repeat(num_epochs)
-    if is_shuffle and batch_size >= 1:
-        dataset = dataset.shuffle(batch_size * 2)
+    # if is_shuffle and batch_size >= 1:
+    #     dataset = dataset.shuffle(batch_size * 2)
     iterator = dataset.make_one_shot_iterator()
     return iterator.get_next()
 
