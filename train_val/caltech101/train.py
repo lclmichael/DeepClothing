@@ -13,7 +13,7 @@ learning_rate = 0.01
 
 output_size = 101
 
-val_data_len = 810
+val_data_len = 2945
 
 def train(lr=0.005,
           stddev=0.001,
@@ -72,7 +72,7 @@ def print_result(name, step, loss, acc, cost_time):
 def set_parser():
     parser = argparse.ArgumentParser(description="run train multiclass network for clatech101")
     parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
-    parser.add_argument("-val_batch_size", action="store", default=10, type=int, help="val batch size")
+    parser.add_argument("-val_batch_size", action="store", default=1, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=0.005, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")

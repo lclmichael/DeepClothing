@@ -19,7 +19,8 @@ class JsonDataTools(object):
         json_all_list = []
         json_train_list = []
         json_val_list = []
-
+        train_count_list = [0 for x in range(101)]
+        val_count_list = [0 for x in range(101)]
         image_index = -1
         category_index = -1
         for root, dirs, files in os.walk(self._data_root_dir, topdown=True):
@@ -35,10 +36,14 @@ class JsonDataTools(object):
                 json_data = {"id":image_index,
                              "categoryNum":category_index,
                              "path":os.path.join(category_name, file_name)}
-                if single_count % 10 == 0 and single_count > 0:
-                    json_val_list.append(json_data)
-                else:
+                if train_count_list[category_index] < 30:
                     json_train_list.append(json_data)
+                    train_count_list[category_index] += 1
+                    continue
+                elif val_count_list[category_index] < 50:
+                    val_count_list[category_index] += 1
+                    json_val_list.append(json_data)
+
                 json_all_list.append(json_data)
 
         print("count num. all:{}, train:{}, val:{}, category_num:{}".
@@ -75,11 +80,20 @@ def get_json(json_name):
 def get_category_list(json_name):
     return json_data_tools.get_category_list(json_name)
 
+#计算每个类别图像数量
+def calc_all(json_name):
+    data = get_json(json_name)
+    count_list = [0 for i in range(101)]
+    for obj in data:
+        count_list[obj["categoryNum"]] += 1
+    print(np.sum(count_list))
+    print(count_list)
+
 
 def main():
     jdt = JsonDataTools()
-    jdt.build_json()
-
+    # jdt.build_json()
+    calc_all("train.json")
     pass
     
 if __name__ == "__main__":
