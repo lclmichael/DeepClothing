@@ -10,7 +10,7 @@ from deepclothing.data.caltech101.json_data import JsonDataTools
 from deepclothing.util import image_utils
 from deepclothing.util import config_utils
 
-train_mean = 133
+train_mean = 132
 
 def image_preprocess(path, label):
     image = tf.read_file(path)
@@ -95,7 +95,7 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # pr.get_mean()
+    input_data.get_mean()
     # input_data.test_batch()
     print(len(input_data.get_category_list()))
     print("cost time {}".format(time.time() - start))
