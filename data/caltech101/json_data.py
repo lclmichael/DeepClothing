@@ -39,7 +39,6 @@ class JsonDataTools(object):
                 if train_count_list[category_index] < 30:
                     json_train_list.append(json_data)
                     train_count_list[category_index] += 1
-                    continue
                 elif val_count_list[category_index] < 50:
                     val_count_list[category_index] += 1
                     json_val_list.append(json_data)
