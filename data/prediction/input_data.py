@@ -60,7 +60,7 @@ def mean_preprocess(path):
     mean, variance = tf.nn.moments(image, [0, 1, 2])
     return mean
 
-def get_iterator(datas, batch_size=32, threads=4, num_epochs=-1, is_shuffle=False, preprocess=default_preprocess):
+def get_iterator(datas, batch_size=32, threads=4, num_epochs=-1, preprocess=default_preprocess):
     dataset = tf.data.Dataset.from_tensor_slices(datas)
     dataset = dataset.map(preprocess, num_parallel_calls=threads)
     dataset = dataset.batch(batch_size).repeat(num_epochs)
@@ -99,7 +99,7 @@ class InputData(object):
         datas = (path_list, label_list)
         if batch_size == -1:
             batch_size = len(path_list)
-        batch = get_iterator(datas, batch_size=batch_size, is_shuffle=is_shuffle)
+        batch = get_iterator(datas, batch_size=batch_size)
         return batch
 
     @staticmethod

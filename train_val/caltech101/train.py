@@ -4,12 +4,12 @@
 import time
 import argparse
 
+import numpy as np
 import tensorflow as tf
 
 import deepclothing.data.caltech101.input_data as input_data
 from deepclothing.model.multiclass_network import MultiClassNetwork
 
-learning_rate = 0.01
 
 output_size = 101
 
@@ -25,11 +25,11 @@ def train(lr=0.005,
     model = MultiClassNetwork(output_size=output_size, lr=lr, stddev=stddev)
     train_step_tensor, loss_tensor, accuracy_tensor, prediction_tensor  = model.build_model()
 
-    train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size)
+    train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size, is_shuffle=False)
     val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
 
     val_iter = int(val_data_len / val_batch_size)
-
+    category_list = input_data.get_category_list()
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session() as sess:
@@ -44,7 +44,10 @@ def train(lr=0.005,
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
                 cost_time = time.time() - start_time
-                print_result("train", i, loss, acc, cost_time)
+
+                train_category = [category_list[np.argmax(x)] for x in range(train_batch[1])]
+                print_result("train", i, loss, acc, cost_time, str(set(train_category)))
+
                 start_time = time.time()
 
             if i % val_interval == 0 and i > 0:
@@ -64,9 +67,9 @@ def train(lr=0.005,
         print("train stop cost time {:.2f}".format(cost_time))
 
 
-def print_result(name, step, loss, acc, cost_time):
-    print(name + " on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f};"
-          .format(step, loss, acc, cost_time))
+def print_result(name, step, loss, acc, cost_time, remark=""):
+    print(name + " on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f}; remark:{}"
+          .format(step, loss, acc, cost_time, remark))
 
 
 def set_parser():
