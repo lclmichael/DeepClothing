@@ -45,7 +45,7 @@ def train(lr=0.005,
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
                 cost_time = time.time() - start_time
 
-                train_category = [category_list[np.argmax(x)] for x in range(train_batch[1])]
+                train_category = [category_list[np.argmax(x)] for x in train_batch[1]]
                 print_result("train", i, loss, acc, cost_time, str(set(train_category)))
 
                 start_time = time.time()

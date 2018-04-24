@@ -14,7 +14,7 @@ class JsonDataTools(object):
 
     _json_dir = os.path.join(os.path.dirname(__file__), "json")
 
-    def build_json(self):
+    def build_json_file(self):
         category_list = []
         json_all_list = []
         json_train_list = []
@@ -91,7 +91,7 @@ def calc_all(json_name):
 
 def main():
     jdt = JsonDataTools()
-    jdt.build_json()
+    jdt.build_json_file()
     pass
     
 if __name__ == "__main__":

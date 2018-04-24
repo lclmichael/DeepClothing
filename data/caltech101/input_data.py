@@ -95,7 +95,6 @@ def get_tenosr_data(name="train", batch_size=16, is_shuffle=True):
     return train_batch
 
 def main():
-    input_data = InputData()
     # print(pr.get_category_chs_list())
     start = time.time()
     # pr.get_mean_with_plt(json_name="prediction_train.json")
