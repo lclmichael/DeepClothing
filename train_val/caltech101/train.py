@@ -43,9 +43,11 @@ def train(lr=0.005,
             if i % print_interval == 0 and i > 0:
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
-                cost_time = time.time() - start_time
+
 
                 train_category = [category_list[np.argmax(x)] for x in train_batch[1]]
+
+                cost_time = time.time() - start_time
                 print_result("train", i, loss, acc, cost_time, str(set(train_category)))
 
                 start_time = time.time()

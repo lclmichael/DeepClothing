@@ -9,7 +9,7 @@ def main():
 
     start = time.time()
     jdt = JsonDataTools()
-    jdt.build_json()
+    jdt.build_json_file()
     print("cost time {}".format(time.time() - start))
     pass
     
