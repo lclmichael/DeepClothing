@@ -41,6 +41,7 @@ def train(lr=0.005,
             sess.run(train_step_tensor,
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
             if i % print_interval == 0 and i > 0:
+
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
 
