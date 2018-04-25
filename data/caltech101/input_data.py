@@ -13,7 +13,7 @@ from deepclothing.util import config_utils
 
 train_mean = 132
 
-train_variance = 6970
+train_variance = 6979.9
 
 def image_preprocess(path, label):
     image = tf.read_file(path)
@@ -22,7 +22,7 @@ def image_preprocess(path, label):
     image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
     image = tf.subtract(image, train_mean)
-    image = tf.div(image, tf.sqrt(train_variance))
+    image = tf.div(image, tf.sqrt(train_variance, ))
     label = tf.one_hot(label, 101)
     return image, label
 
