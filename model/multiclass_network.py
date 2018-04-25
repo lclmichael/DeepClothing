@@ -20,12 +20,12 @@ class MultiClassNetwork(object):
 
     def build_model(self):
         pool5 = self.lighten_vgg.get_model(self.input_x, self.is_train, self.stddev)
-        #直接接入全连接层
-        fc = tf.layers.dense(
-            inputs=tf.layers.flatten(pool5),
-            units=self.output_size,
-            kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
-            use_bias=False)
+        #直接接入全连接层输出
+        fc = tf.layers.dense(inputs=tf.layers.flatten(pool5),
+                             units=self.output_size,
+                             kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
+                             use_bias=False)
+
         logits = tf.layers.batch_normalization(fc, training=self.is_train)
         y_prediction = tf.nn.softmax(logits)
         comparison = tf.equal(tf.argmax(y_prediction, 1), tf.argmax(self.y_truth, 1))

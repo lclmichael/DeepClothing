@@ -15,11 +15,11 @@ output_size = 101
 
 val_data_len = 2945
 
-def train(lr=0.005,
+def train(lr=0.001,
           stddev=0.001,
           max_iter=200000,
           train_batch_size=16,
-          val_batch_size=10,
+          val_batch_size=1,
           print_interval = 10,
           val_interval = 2000):
     model = MultiClassNetwork(output_size=output_size, lr=lr, stddev=stddev)
@@ -32,25 +32,25 @@ def train(lr=0.005,
     category_list = input_data.get_category_list()
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    with tf.Session() as sess:
+    with tf.Session(config=config) as sess:
         tf.global_variables_initializer().run()
         very_beginning = time.time()
         start_time = very_beginning
         for i in range(max_iter):
             train_batch = sess.run(train_data_tensor)
             sess.run(train_step_tensor,
-                     feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
+                     feed_dict={model.input_x: train_batch[0],
+                                model.y_truth: train_batch[1],
+                                model.is_train: True})
+
             if i % print_interval == 0 and i > 0:
-
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
-                     feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
-
-
+                                     feed_dict={model.input_x: train_batch[0],
+                                                model.y_truth: train_batch[1],
+                                                model.is_train: False})
                 train_category = [category_list[np.argmax(x)] for x in train_batch[1]]
-
                 cost_time = time.time() - start_time
                 print_result("train", i, loss, acc, cost_time, str(set(train_category)))
-
                 start_time = time.time()
 
             if i % val_interval == 0 and i > 0:
@@ -59,7 +59,10 @@ def train(lr=0.005,
                 for j in range(val_iter):
                     val_batch = sess.run(val_data_tensor)
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
-                         feed_dict={model.input_x: val_batch[0], model.y_truth: val_batch[1], model.is_train: False})
+                         feed_dict={model.input_x: val_batch[0],
+                                    model.y_truth: val_batch[1],
+                                    model.is_train: False})
+
                     total_loss += loss
                     total_acc += acc
                 cost_time = time.time() - start_time
@@ -79,7 +82,7 @@ def set_parser():
     parser = argparse.ArgumentParser(description="run train multiclass network for clatech101")
     parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
     parser.add_argument("-val_batch_size", action="store", default=1, type=int, help="val batch size")
-    parser.add_argument("-lr", action="store", default=0.005, type=float, help="learning rate")
+    parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
     parser.add_argument("-print_interval", action="store", default=10, type=int, help="print interval")

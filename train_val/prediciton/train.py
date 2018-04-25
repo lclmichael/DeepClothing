@@ -32,7 +32,7 @@ def train(lr=0.005,
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
-    with tf.Session() as sess:
+    with tf.Session(config=config) as sess:
         tf.global_variables_initializer().run()
         very_beginning = time.time()
         start_time = very_beginning
