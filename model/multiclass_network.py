@@ -7,6 +7,9 @@ import tensorflow as tf
 from deepclothing.model.base.lighten_vgg import LightenVGG
 
 #base on lighten vgg
+
+
+
 class MultiClassNetwork(object):
 
     def __init__(self, output_size=101, lr=0.001, stddev=0.001):
@@ -18,15 +21,21 @@ class MultiClassNetwork(object):
         self.stddev = stddev
         self.lighten_vgg = LightenVGG()
 
+    def dense_layer(self, input_tensor, output_size):
+        fc = tf.layers.dense(inputs=tf.layers.flatten(input_tensor),
+                              units=output_size,
+                              kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
+                              use_bias=False)
+        bn = tf.layers.batch_normalization(fc, training=self.is_train)
+        return bn
+
     def build_model(self):
         pool5 = self.lighten_vgg.get_model(self.input_x, self.is_train, self.stddev)
         #直接接入全连接层输出
-        fc = tf.layers.dense(inputs=tf.layers.flatten(pool5),
-                             units=self.output_size,
-                             kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
-                             use_bias=False)
+        fc1 = self.dense_layer(pool5, 4096)
+        fc2 = self.dense_layer(fc1, 4096)
+        logits = self.dense_layer(fc2, self.output_size)
 
-        logits = tf.layers.batch_normalization(fc, training=self.is_train)
         y_prediction = tf.nn.softmax(logits)
         comparison = tf.equal(tf.argmax(y_prediction, 1), tf.argmax(self.y_truth, 1))
         accuracy = tf.reduce_mean(tf.cast(comparison, dtype=tf.float32))
