@@ -105,6 +105,7 @@ class VGG16(object):
               max_iter=200000,
               print_interval=100,
               val_interval=2000):
+
         train_step_tensor, loss_tensor, accuracy_tensor = self.get_model(lr=lr, stddev=stddev)
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -113,24 +114,18 @@ class VGG16(object):
             start_time = time.time()
             for i in range(max_iter):
                 train_batch = sess.run(train_batch_tenosr)
-                sess.run(
-                    train_step_tensor,
-                    feed_dict={
-                        self.x: train_batch[0],
-                        self.y_truth: train_batch[1],
-                        self.is_train: True
-                    })
+                sess.run(train_step_tensor,
+                         feed_dict={self.x: train_batch[0],
+                                    self.y_truth: train_batch[1],
+                                    self.is_train: True})
                 if i % print_interval == 0 and i > 0:
-                    loss, accuracy= sess.run(
-                        [loss_tensor, accuracy_tensor],
-                        feed_dict={
-                            self.x: train_batch[0],
-                            self.y_truth: train_batch[1],
-                            self.is_train: False
-                        })
+                    loss, accuracy = sess.run([loss_tensor, accuracy_tensor],
+                                              feed_dict={self.x: train_batch[0],
+                                                         self.y_truth: train_batch[1],
+                                                         self.is_train: False})
                     cost_time = time.time() - start_time
                     print("train on step {}; loss: {:.5f}; accuracy:{:.3f}; cost time {:.2f};"
-                            .format(i, loss, accuracy, cost_time))
+                          .format(i, loss, accuracy, cost_time))
                     start_time = time.time()
 
                 if i % val_interval == 0 and i > 0:
@@ -138,13 +133,11 @@ class VGG16(object):
                     all_accuracy = 0
                     for j in range(val_iter):
                         val_batch = sess.run(val_batch_tensor)
-                        loss, accuracy = sess.run(
-                            [loss_tensor, accuracy_tensor],
-                            feed_dict={
-                                self.x: val_batch[0],
-                                self.y_truth: val_batch[1],
-                                self.is_train: False
-                            })
+                        loss, accuracy = sess.run([loss_tensor, accuracy_tensor],
+                                                  feed_dict={self.x: val_batch[0],
+                                                             self.y_truth: val_batch[1],
+                                                             self.is_train: False
+                                                             })
                         all_loss += loss
                         all_accuracy += accuracy
                     cost_time = time.time() - start_time

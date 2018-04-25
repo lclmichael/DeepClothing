@@ -13,6 +13,8 @@ from deepclothing.util import config_utils
 
 train_mean = 132
 
+train_variance = 6970
+
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
@@ -20,6 +22,7 @@ def image_preprocess(path, label):
     image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
     image = tf.subtract(image, train_mean)
+    image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
     return image, label
 
@@ -29,6 +32,14 @@ def mean_preprocess(path):
     image = tf.image.resize_images(image, [224, 224])
     mean, variance = tf.nn.moments(image, [0, 1, 2])
     return mean
+
+def variance_preprocess(path):
+    image = tf.read_file(path)
+    image = tf.image.decode_jpeg(image, channels=3)
+    image = tf.image.resize_images(image, [224, 224])
+    image = tf.subtract(image, train_mean)
+    result = tf.reduce_mean(tf.square(image))
+    return result
 
 class InputData(object):
 
@@ -57,8 +68,20 @@ class InputData(object):
                 all_mean += bc[0]
                 print("step: {}, mean:{}, total mean:{}, total:{}".
                       format(i, bc[0], all_mean / (i + 1), all_mean))
-
             print("result: {}".format(all_mean / data_len))
+
+    def get_variance(self, json_name="train.json"):
+        datas = self.json_data_tools.get_data_list(json_name)
+        batch_tensor = self.get_iterator(datas[0], batch_size=1, num_epochs=1, preprocess=variance_preprocess)
+        data_len = len(datas[0])
+        with tf.Session() as sess:
+            all_var = 0
+            for i in range(data_len):
+                bc = batch_tensor.eval()
+                all_var += bc[0]
+                print("step: {}, mean:{}, total mean:{}, total:{}".
+                      format(i, bc[0], all_var / (i + 1), all_var))
+            print("result: {}".format(all_var / data_len))
 
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_tensor_batch_from_json(self, json_name, batch_size=16, is_shuffle=True):
@@ -100,7 +123,8 @@ def main():
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
     # input_data.get_mean()
-    input_data.test_batch()
+    input_data.get_variance()
+    # input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':
