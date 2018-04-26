@@ -26,7 +26,7 @@ def train(lr=0.001,
     model = MultiClassNetwork(output_size=output_size, lr=lr, stddev=stddev)
     train_step_tensor, loss_tensor, accuracy_tensor, prediction_tensor  = model.build_model()
 
-    train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size, is_shuffle=False)
+    train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size)
     val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
 
     val_iter = int(val_data_len / val_batch_size)

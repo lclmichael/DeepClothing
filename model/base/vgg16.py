@@ -17,7 +17,6 @@ def max_pool(tensor, name="pool_layer"):
                                    strides=2,
                                    name=name)
 
-
 def dense_layer(tensor, units, name="dense_layer"):
     return tf.layers.dense(tensor,
                            units=units,
