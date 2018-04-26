@@ -22,10 +22,11 @@ class MultiClassNetwork(object):
         self.lighten_vgg = LightenVGG()
 
     def dense_layer(self, input_tensor, output_size, use_bias=True):
-        fc = tf.layers.dense(inputs=tf.layers.flatten(input_tensor),
-                              units=output_size,
-                              kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
-                              use_bias=use_bias)
+        fc = tf.layers.dense(
+            inputs=tf.layers.flatten(input_tensor),
+            units=output_size,
+            kernel_initializer=tf.initializers.truncated_normal(stddev=self.stddev),
+            use_bias=use_bias)
         # bn = tf.layers.batch_normalization(fc, training=self.is_train)
         return fc
 

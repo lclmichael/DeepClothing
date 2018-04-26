@@ -5,7 +5,6 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from PIL import Image
 
 from deepclothing.data.caltech101.json_data import JsonDataTools
 from deepclothing.util import image_utils
@@ -22,7 +21,7 @@ def image_preprocess(path, label):
     image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
     image = tf.subtract(image, train_mean)
-    image = tf.div(image, tf.sqrt(train_variance, ))
+    image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
     return image, label
 
