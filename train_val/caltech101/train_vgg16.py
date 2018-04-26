@@ -30,7 +30,6 @@ def train(lr=0.001,
     val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
 
     val_iter = int(val_data_len / val_batch_size)
-    category_list = input_data.get_category_list()
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
@@ -49,9 +48,8 @@ def train(lr=0.001,
                                      feed_dict={model.input_x: train_batch[0],
                                                 model.y_truth: train_batch[1],
                                                 model.is_train: False})
-                train_category = [category_list[np.argmax(x)] for x in train_batch[1]]
                 cost_time = time.time() - start_time
-                print_result("train", i, loss, acc, cost_time, str(set(train_category)))
+                print_result("train", i, loss, acc, cost_time)
                 start_time = time.time()
 
             if i % val_interval == 0 and i > 0:
