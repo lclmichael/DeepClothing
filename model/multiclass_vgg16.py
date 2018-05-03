@@ -6,10 +6,7 @@ import tensorflow as tf
 
 from deepclothing.model.base.vgg16 import VGG16
 
-#base on lighten vgg
-
-
-
+#base on vgg16
 class MultiClassNetwork(object):
 
     def __init__(self, output_size=101, lr=0.01, stddev=0.01):
@@ -19,7 +16,7 @@ class MultiClassNetwork(object):
         self.output_size = output_size
         self.learning_rate = lr
         self.stddev = stddev
-        self.lighten_vgg = VGG16()
+        self.model = VGG16()
 
     def dense_layer(self, input_tensor, output_size, use_bias=True):
         fc = tf.layers.dense(
@@ -31,7 +28,7 @@ class MultiClassNetwork(object):
         return fc
 
     def build_model(self):
-        features = self.lighten_vgg.get_model(self.input_x, self.is_train)
+        features = self.model.get_model(self.input_x, self.is_train)
         #直接接入全连接层输出
         # fc1 = self.dense_layer(pool5, 4096)
         # fc2 = self.dense_layer(fc1, 4096)
