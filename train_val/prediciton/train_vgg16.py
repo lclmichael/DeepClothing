@@ -38,8 +38,6 @@ def train(lr=0.005,
         start_time = very_beginning
         for i in range(max_iter):
             train_batch = sess.run(train_data_tensor)
-            sess.run(train_step_tensor,
-                     feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
             if i % print_interval == 0 and i > 0:
                 prediction, loss, acc = sess.run([prediction_tensor, loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
@@ -47,6 +45,10 @@ def train(lr=0.005,
                 print_result("train", i, loss, acc, cost_time)
                 print(prediction)
                 start_time = time.time()
+
+            sess.run(train_step_tensor,
+                     feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
+
 
             if i % val_interval == 0 and i > 0:
                 total_loss = 0
