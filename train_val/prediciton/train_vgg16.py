@@ -41,10 +41,11 @@ def train(lr=0.005,
             sess.run(train_step_tensor,
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: True})
             if i % print_interval == 0 and i > 0:
-                loss, acc = sess.run([loss_tensor, accuracy_tensor],
+                prediction, loss, acc = sess.run([prediction_tensor, loss_tensor, accuracy_tensor],
                      feed_dict={model.input_x: train_batch[0], model.y_truth: train_batch[1], model.is_train: False})
                 cost_time = time.time() - start_time
                 print_result("train", i, loss, acc, cost_time)
+                print(prediction)
                 start_time = time.time()
 
             if i % val_interval == 0 and i > 0:
