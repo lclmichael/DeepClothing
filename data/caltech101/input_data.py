@@ -101,7 +101,7 @@ class InputData(object):
             for i in range(101):
                 img_batch, label_batch = sess.run(batch_tensor)
                 for j in range(batch_size):
-                    category_index = np.argmax(label_batch[j])
+                    print(label_batch[j])
                     # print(i, category_list[category_index])
                     image_utils.show_image(np.uint8(img_batch[j]))
                     break
@@ -122,8 +122,7 @@ def main():
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
     # input_data.get_mean()
-    input_data.get_variance()
-    # input_data.test_batch()
+    input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':

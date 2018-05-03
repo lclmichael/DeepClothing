@@ -3,12 +3,13 @@
 
 import tensorflow as tf
 
-def conv_layer(tensor, filters, kernel_size=(3,3), name="conv_layer"):
+def conv_layer(tensor, filters, kernel_size=(3,3), stddev=0.01, name="conv_layer"):
         return tf.layers.conv2d(inputs=tensor,
                                 filters=filters,
                                 kernel_size=kernel_size,
                                 padding="SAME",
                                 activation=tf.nn.relu,
+                                kernel_initializer=tf.initializers.truncated_normal(stddev=stddev),
                                 name=name)
 
 def max_pool(tensor, name="pool_layer"):
@@ -17,10 +18,11 @@ def max_pool(tensor, name="pool_layer"):
                                    strides=2,
                                    name=name)
 
-def dense_layer(tensor, units, name="dense_layer"):
+def dense_layer(tensor, units, stddev=0.001, name="dense_layer"):
     return tf.layers.dense(tensor,
                            units=units,
                            activation=tf.nn.relu,
+                           kernel_initializer=tf.initializers.truncated_normal(stddev=stddev),
                            name=name)
 
 def dropout_layer(tensor, rate=0.5, is_train=False, name="droput_layer"):
