@@ -85,8 +85,6 @@ class InputData(object):
     # get batch from json, return a tenor list [img_batch, label_batch]
     def get_tensor_batch_from_json(self, json_name, batch_size=16, is_shuffle=True):
         datas = self.json_data_tools.get_data_list(json_name, is_shuffle)
-        if is_shuffle:
-            np.random.shuffle(datas)
         batch_size = batch_size if batch_size >= 0 else len(datas[0])
         batch = self.get_iterator(datas, batch_size=batch_size)
         return batch
