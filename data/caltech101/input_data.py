@@ -20,7 +20,8 @@ def image_preprocess(path, label):
     # image = tf.image.convert_image_dtype(image, dtype=tf.int64)
     image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
-    image = tf.subtract(image, train_mean)
+    # image = tf.subtract(image, train_mean)
+    image = tf.image.per_image_standardization(image)
     # image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
     return image, label
