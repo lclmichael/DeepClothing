@@ -79,7 +79,7 @@ def print_result(name, step, loss, acc, cost_time, remark=""):
 
 def set_parser():
     parser = argparse.ArgumentParser(description="run train multiclass network for clatech101")
-    parser.add_argument("-train_batch_size", action="store", default=16, type=int, help="train batch size")
+    parser.add_argument("-train_batch_size", action="store", default=32, type=int, help="train batch size")
     parser.add_argument("-val_batch_size", action="store", default=1, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")

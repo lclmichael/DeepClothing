@@ -22,6 +22,7 @@ def train(lr=0.001,
           val_batch_size=1,
           print_interval = 10,
           val_interval = 2000):
+
     model = MultiClassNetwork(output_size=output_size, lr=lr, stddev=stddev)
     train_step_tensor, loss_tensor, accuracy_tensor, prediction_tensor  = model.build_model()
 
