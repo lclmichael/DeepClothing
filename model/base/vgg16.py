@@ -58,9 +58,9 @@ class VGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, name="conv5_3")
         pool5 = max_pool(conv5_3, name="pool5")
 
-        dense1 = dense_layer(pool5, units=4096, name="dense_1")
+        dense1 = dense_layer(pool5, units=256, name="dense_1")
         drop1 = dropout_layer(dense1, is_train=is_train_tensor, name="drop1")
-        dense2 = dense_layer(drop1, units=4096, name="dense_2")
+        dense2 = dense_layer(drop1, units=256, name="dense_2")
         drop2 = dropout_layer(dense2, is_train=is_train_tensor, name="drop2")
 
         return drop2
