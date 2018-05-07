@@ -12,16 +12,18 @@ from deepclothing.util import config_utils
 
 train_mean = 132
 
+rgb_mean = [139.09414673, 132.65591431, 124.21406555]
+
 train_variance = 6979.9
 
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-    # image = tf.image.convert_image_dtype(image, dtype=tf.int64)
+    image = tf.image.convert_image_dtype(image, dtype=tf.int64)
     image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
-    # image = tf.subtract(image, train_mean)
-    image = tf.image.per_image_standardization(image)
+    # image = tf.subtract(image, rgb_mean)
+    # image = tf.image.per_image_standardization(image)
     # image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
     return image, label
@@ -30,7 +32,8 @@ def mean_preprocess(path):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.image.resize_images(image, [224, 224])
-    mean, variance = tf.nn.moments(image, [0, 1, 2])
+    # mean, variance = tf.nn.moments(image, [0, 1, 2])
+    mean, variance = tf.nn.moments(image, [0, 1])
     return mean
 
 def variance_preprocess(path):
@@ -122,8 +125,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # input_data.get_mean()
-    input_data.test_batch()
+    input_data.get_mean()
+    # input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':
