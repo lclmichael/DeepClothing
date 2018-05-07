@@ -30,8 +30,6 @@ class MultiClassNetwork(object):
     def build_model(self):
         features = self.model.get_model(self.input_x, self.is_train)
         #直接接入全连接层输出
-        # fc1 = self.dense_layer(pool5, 4096)
-        # fc2 = self.dense_layer(fc1, 4096)
         logits = self.dense_layer(features, self.output_size)
         y_prediction = tf.nn.softmax(logits)
         comparison = tf.equal(tf.argmax(y_prediction, 1), tf.argmax(self.y_truth, 1))

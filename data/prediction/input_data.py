@@ -43,6 +43,7 @@ def mean_preprocess_with_bbox(path, bbox):
 
 #预处理
 def default_preprocess(path, label):
+
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.cast(image, tf.float32)
