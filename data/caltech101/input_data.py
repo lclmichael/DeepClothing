@@ -19,8 +19,9 @@ train_variance = 6979.9
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-    image = tf.image.convert_image_dtype(image, dtype=tf.int64)
-    image = tf.cast(image, dtype=tf.float32)
+    # image = tf.cast(image, dtype=tf.float32)
+    image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+
     image = tf.image.resize_images(image, [224, 224])
     # image = tf.subtract(image, rgb_mean)
     # image = tf.image.per_image_standardization(image)
@@ -98,6 +99,7 @@ class InputData(object):
         return data
 
     def test_batch(self):
+        np.set_printoptions(threshold=np.inf)
         batch_size = 30
         category_list = self.get_category_list()
         batch_tensor = get_tenosr_data("train", batch_size=batch_size, is_shuffle=False)
@@ -106,6 +108,8 @@ class InputData(object):
                 img_batch, label_batch = sess.run(batch_tensor)
                 for j in range(batch_size):
                     print(label_batch[j])
+                    print(img_batch[j])
+                    img_batch[j].tofile("test.bin")
                     # print(i, category_list[category_index])
                     image_utils.show_image(np.uint8(img_batch[j]))
                     break
@@ -125,8 +129,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    input_data.get_mean()
-    # input_data.test_batch()
+    # input_data.get_mean()
+    input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':
