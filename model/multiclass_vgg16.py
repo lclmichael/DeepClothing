@@ -36,7 +36,8 @@ class MultiClassNetwork(object):
         accuracy = tf.reduce_mean(tf.cast(comparison, dtype=tf.float32))
         loss = tf.losses.softmax_cross_entropy(onehot_labels=self.y_truth, logits=logits)
         # loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits))
-        train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        # train_step = tf.train.AdamOptimizer(self.learning_rate).minimize(loss)
+        train_step = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(loss)
         return train_step, loss, accuracy, y_prediction
 
 def main():
