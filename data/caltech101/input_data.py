@@ -19,11 +19,11 @@ train_variance = 6979.9
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-    # image = tf.cast(image, dtype=tf.float32)
-    image = tf.image.convert_image_dtype(image, dtype=tf.float32)
 
+    # image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    image = tf.cast(image, dtype=tf.float32)
     image = tf.image.resize_images(image, [224, 224])
-    # image = tf.subtract(image, rgb_mean)
+    image = tf.subtract(image, rgb_mean)
     # image = tf.image.per_image_standardization(image)
     # image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
