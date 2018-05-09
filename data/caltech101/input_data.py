@@ -102,14 +102,13 @@ class InputData(object):
         np.set_printoptions(threshold=np.inf)
         batch_size = 30
         category_list = self.get_category_list()
-        batch_tensor = get_tenosr_data("train", batch_size=batch_size, is_shuffle=False)
+        batch_tensor = get_tenosr_data("val", batch_size=batch_size, is_shuffle=False)
         with tf.Session() as sess:
             for i in range(101):
                 img_batch, label_batch = sess.run(batch_tensor)
                 for j in range(batch_size):
                     print(label_batch[j])
                     print(img_batch[j])
-                    img_batch[j].tofile("test.bin")
                     # print(i, category_list[category_index])
                     image_utils.show_image(np.uint8(img_batch[j]))
                     break
