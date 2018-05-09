@@ -10,13 +10,9 @@ import tensorflow as tf
 import deepclothing.data.prediction.input_data as input_data
 from deepclothing.util import image_utils
 
-
 # filter, fully-connector layer weight
 def get_weight(shape, stddev=1e-2, name="weight"):
     return tf.Variable(tf.truncated_normal(shape, stddev=stddev), dtype=tf.float32, name=name)
-
-def get_bias(shape):
-    return tf.Variable(tf.constant(0.1, shape=shape, name="bias"))
 
 def max_pool(bottom, name):
     return tf.nn.max_pool(
@@ -39,14 +35,12 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
     with tf.variable_scope(name):
         flatten = tf.layers.flatten(bottom)
         weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
-        bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
         if is_hidden:
             bn = tf.layers.batch_normalization(fc, training=is_train)
             relu = tf.nn.relu(bn)
             return relu
-        add_bias = tf.nn.bias_add(fc, bias=bias)
-        return add_bias
+        return fc
 
 class VGG16(object):
 
@@ -136,8 +130,7 @@ class VGG16(object):
                         loss, accuracy = sess.run([loss_tensor, accuracy_tensor],
                                                   feed_dict={self.x: val_batch[0],
                                                              self.y_truth: val_batch[1],
-                                                             self.is_train: False
-                                                             })
+                                                             self.is_train: False})
                         all_loss += loss
                         all_accuracy += accuracy
                     cost_time = time.time() - start_time
