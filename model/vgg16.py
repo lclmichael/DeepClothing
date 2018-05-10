@@ -67,7 +67,8 @@ class VGG16(object):
         pool3 = max_pool(conv3_3, "pool3")
 
         conv4_1 = conv_layer(pool3, 256, 512, self.is_train, stddev=stddev, name="conv4_1")
-        conv4_2 = conv_layer(conv4_1, 512, 512, self.is_train, stddev=stddev, name="conv4_2")
+        conv4_2 = conv_layer(conv4_1, 512, 512, self.is_train, stddev=stddev, name="conv4_2")        # fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc2")
+
         conv4_3 = conv_layer(conv4_2, 512, 512, self.is_train, stddev=stddev, name="conv4_3")
         pool4 = max_pool(conv4_3, "pool4")
 
@@ -77,7 +78,6 @@ class VGG16(object):
         pool5 = max_pool(conv5_3, "pool5")
 
         # fc1 = fc_layer(pool5, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc1")
-        # fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=stddev, name="fc2")
         # fc3 = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc3")
         fc = fc_layer(pool5, self._output_size, is_hidden=False, is_train=self.is_train, stddev=stddev, name="fc")
         y = tf.nn.softmax(fc)

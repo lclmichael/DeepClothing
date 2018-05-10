@@ -83,7 +83,7 @@ def set_parser():
     parser.add_argument("-train_batch_size", action="store", default=32, type=int, help="train batch size")
     parser.add_argument("-val_batch_size", action="store", default=1, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
-    parser.add_argument("-stddev", action="store", default=1e-2, type=float, help="weight stddev")
+    parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
     parser.add_argument("-print_interval", action="store", default=10, type=int, help="print interval")
     parser.add_argument("-val_interval", action="store", default=2000, type=int, help="val interval")
