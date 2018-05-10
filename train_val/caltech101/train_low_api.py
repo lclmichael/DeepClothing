@@ -31,7 +31,7 @@ def train(lr=0.001,
     train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size, is_shuffle=True)
     val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
 
-    val_iter = int(val_data_len / val_batch_size)
+    val_iter = int(val_data_len // val_batch_size)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
@@ -60,14 +60,13 @@ def train(lr=0.001,
                 for j in range(val_iter):
                     val_batch = sess.run(val_data_tensor)
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
-                         feed_dict={model.x: val_batch[0],
-                                    model.y_truth: val_batch[1],
-                                    model.is_train: False})
-
+                                         feed_dict={model.x: val_batch[0],
+                                                    model.y_truth: val_batch[1],
+                                                    model.is_train: False})
                     total_loss += loss
                     total_acc += acc
                 cost_time = time.time() - start_time
-                print_result("val", i, total_loss/val_iter, total_acc/val_iter, cost_time)
+                print_result("val", i, total_loss // val_iter, total_acc // val_iter, cost_time)
                 start_time = time.time()
 
         cost_time = time.time() - very_beginning
@@ -81,7 +80,7 @@ def print_result(name, step, loss, acc, cost_time, remark=""):
 def set_parser():
     parser = argparse.ArgumentParser(description="run train low api vgg16 network for clatech101")
     parser.add_argument("-train_batch_size", action="store", default=32, type=int, help="train batch size")
-    parser.add_argument("-val_batch_size", action="store", default=1, type=int, help="val batch size")
+    parser.add_argument("-val_batch_size", action="store", default=5, type=int, help="val batch size")
     parser.add_argument("-lr", action="store", default=1e-3, type=float, help="learning rate")
     parser.add_argument("-stddev", action="store", default=1e-3, type=float, help="weight stddev")
     parser.add_argument("-iter", action="store", default=200000, type=int, help="max iter")
