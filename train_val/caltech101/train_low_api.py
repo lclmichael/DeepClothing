@@ -9,7 +9,6 @@ import tensorflow as tf
 import deepclothing.data.caltech101.input_data as input_data
 from deepclothing.model.low_api_vgg16 import LowApiVGG16
 
-
 output_size = 101
 
 val_data_len = 2945
@@ -22,19 +21,21 @@ def train(lr=0.001,
           print_interval = 10,
           val_interval = 2000):
 
+    saver_name = "./saver/low.ckpt"
+
     model = LowApiVGG16(output_size=output_size, lr=lr, stddev=stddev)
     train_step_tensor = model.train_step
     loss_tensor = model.loss
     accuracy_tensor = model.accuracy
-    prediction_tensor  = model.prediction
 
     train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size, is_shuffle=True)
-    val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
+    val_data_tensor = input_data.get_tenosr_data("train", batch_size=val_batch_size, is_shuffle=False)
 
     val_iter = int(val_data_len // val_batch_size)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
+        saver = tf.train.Saver(max_to_keep=1)
         tf.global_variables_initializer().run()
         very_beginning = time.time()
         start_time = very_beginning
@@ -55,6 +56,9 @@ def train(lr=0.001,
                 start_time = time.time()
 
             if i % val_interval == 0 and i > 0:
+                print("start to save: " + saver_name)
+                saver.save(sess, saver_name, global_step=i)
+                print("save success")
                 total_loss = 0
                 total_acc = 0
                 for j in range(val_iter):
