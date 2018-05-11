@@ -23,7 +23,7 @@ def predict(image_path):
     img = image_utils.precess_image(image_path, (224, 224), rgb_mean)
 
     model = LowApiVGG16(output_size=output_size)
-    prediction_tensor  = model.prediction
+    prediction_tensor  = model.y
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
