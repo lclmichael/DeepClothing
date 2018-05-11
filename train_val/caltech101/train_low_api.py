@@ -59,7 +59,7 @@ def train(lr=0.001,
                 total_acc = 0
                 for j in range(val_iter):
                     val_batch = sess.run(val_data_tensor)
-                    print(val_batch.shape)
+                    print(type(val_batch))
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
                                          feed_dict={model.x: val_batch[0],
                                                     model.y_truth: val_batch[1],
