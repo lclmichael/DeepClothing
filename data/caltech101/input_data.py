@@ -19,11 +19,10 @@ train_variance = 6979.9
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-
     # image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     image = tf.cast(image, dtype=tf.float32)
-    image = tf.image.resize_images(image, [224, 224])
     image = tf.subtract(image, rgb_mean)
+    image = tf.image.resize_images(image, [224, 224])
     # image = tf.image.per_image_standardization(image)
     # image = tf.div(image, tf.sqrt(train_variance))
     label = tf.one_hot(label, 101)
@@ -32,7 +31,8 @@ def image_preprocess(path, label):
 def mean_preprocess(path):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-    image = tf.image.resize_images(image, [224, 224])
+    image = tf.cast(image, tf.float32)
+    # image = tf.image.resize_images(image, [224, 224])
     # mean, variance = tf.nn.moments(image, [0, 1, 2])
     mean, variance = tf.nn.moments(image, [0, 1])
     return mean
@@ -61,7 +61,7 @@ class InputData(object):
         iterator = dataset.make_one_shot_iterator()
         return iterator.get_next()
 
-    def get_mean(self, json_name="val.json"):
+    def get_mean(self, json_name="train.json"):
         datas = self.json_data_tools.get_data_list(json_name)
         batch_tensor = self.get_iterator(datas[0], batch_size=1, num_epochs=1, preprocess=mean_preprocess)
         data_len = len(datas[0])
@@ -129,8 +129,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # input_data.get_mean()
-    input_data.test_batch()
+    input_data.get_mean()
+    # input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':

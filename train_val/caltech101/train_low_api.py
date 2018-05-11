@@ -62,7 +62,7 @@ def train(lr=0.001,
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
                                          feed_dict={model.x: val_batch[0],
                                                     model.y_truth: val_batch[1],
-                                                    model.is_train: True})
+                                                    model.is_train: False})
                     total_loss += loss
                     total_acc += acc
                 cost_time = time.time() - start_time
