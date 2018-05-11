@@ -20,7 +20,7 @@ def predict(image_path):
 
     very_beginning = time.time()
     saver_name = "./saver/low.ckpt"
-    img = image_utils.precess_image(image_path, (224, 224), rgb_mean)
+    img = image_utils.process_image(image_path, (224, 224), rgb_mean)
 
     model = LowApiVGG16(output_size=output_size)
     prediction_tensor  = model.y

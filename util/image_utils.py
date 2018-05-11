@@ -32,10 +32,11 @@ def get_image_mean(img):
     img = np.array(img)
     return np.mean(img.flatten())
 
-def precess_image(path, size, mean):
+def process_image(path, size, mean):
     img = read_from_file(path)
-    img = np.subtract(img, mean)
     img = resize_image(img, size)
+    img = np.array(img, dtype=np.float32)
+    img = np.subtract(img, mean)
     return img
 
 
