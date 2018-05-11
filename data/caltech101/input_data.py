@@ -61,7 +61,7 @@ class InputData(object):
         iterator = dataset.make_one_shot_iterator()
         return iterator.get_next()
 
-    def get_mean(self, json_name="train.json"):
+    def get_mean(self, json_name="val.json"):
         datas = self.json_data_tools.get_data_list(json_name)
         batch_tensor = self.get_iterator(datas[0], batch_size=1, num_epochs=1, preprocess=mean_preprocess)
         data_len = len(datas[0])
@@ -128,8 +128,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # input_data.get_mean()
-    input_data.test_batch()
+    input_data.get_mean()
+    # input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':
