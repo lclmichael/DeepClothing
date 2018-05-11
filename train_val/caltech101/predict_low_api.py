@@ -27,8 +27,7 @@ def predict(image_path):
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
-        saver = tf.train.Saver(max_to_keep=1)
-        # tf.global_variables_initializer().run()
+        saver = tf.train.Saver()
         saver.restore(sess, saver_name)
         very_beginning = time.time()
         result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})

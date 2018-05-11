@@ -57,7 +57,7 @@ def train(lr=0.001,
 
             if i % val_interval == 0 and i > 0:
                 print("start to save: " + saver_name)
-                saver.save(sess, saver_name, global_step=i)
+                saver.save(sess, saver_name)
                 print("save success")
                 total_loss = 0
                 total_acc = 0
