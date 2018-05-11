@@ -18,7 +18,7 @@ rgb_mean = [139.09414673, 132.65591431, 124.21406555]
 
 def predict(image_path):
 
-    very_beginning = time.time()
+
     saver_name = "./saver/low.ckpt"
     img = image_utils.process_image(image_path, (224, 224), rgb_mean)
 
@@ -30,8 +30,10 @@ def predict(image_path):
         saver = tf.train.Saver(max_to_keep=1)
         # tf.global_variables_initializer().run()
         saver.restore(sess, saver_name)
+        very_beginning = time.time()
         result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})
         print(np.argmax(result, 1))
+        print(result)
         cost_time = time.time() - very_beginning
         print("predict cost time {:.2f}".format(cost_time))
 
