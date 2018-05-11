@@ -35,7 +35,7 @@ def train(lr=0.001,
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
-        saver = tf.train.Saver(max_to_keep=1)
+        saver = tf.train.Saver(var_list=tf.global_variables(), max_to_keep=1)
         tf.global_variables_initializer().run()
         very_beginning = time.time()
         start_time = very_beginning
