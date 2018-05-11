@@ -30,7 +30,7 @@ def predict(image_path):
         saver = tf.train.Saver(max_to_keep=1)
         # tf.global_variables_initializer().run()
         saver.restore(sess, saver_name)
-        result = sess.run(prediction_tensor, feed_dict={model.x:img, model.is_train:False})
+        result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})
         print(np.argmax(result, 1))
         cost_time = time.time() - very_beginning
         print("predict cost time {:.2f}".format(cost_time))
