@@ -100,15 +100,16 @@ class InputData(object):
 
     def test_batch(self):
         np.set_printoptions(threshold=np.inf)
-        batch_size = 30
+        batch_size = 32
         category_list = self.get_category_list()
         batch_tensor = get_tenosr_data("val", batch_size=batch_size, is_shuffle=False)
         with tf.Session() as sess:
             for i in range(101):
-                img_batch, label_batch = sess.run(batch_tensor)
+                batch = sess.run(batch_tensor)
+                img_batch, label_batch = batch
                 for j in range(batch_size):
                     print(label_batch[j])
-                    print(img_batch[j])
+                    # print(img_batch[j])
                     # print(i, category_list[category_index])
                     image_utils.show_image(np.uint8(img_batch[j]))
                     break
@@ -128,8 +129,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    input_data.get_mean()
-    # input_data.test_batch()
+    # input_data.get_mean()
+    input_data.test_batch()
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':
