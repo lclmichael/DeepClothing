@@ -36,7 +36,7 @@ def predict(image_path):
         result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})
         result_index = np.argmax(result, 1)
 
-        print(result_index, category_list[result_index])
+        print(result_index, category_list[result_index[0]])
         print(result)
         cost_time = time.time() - very_beginning
         print("predict cost time {:.2f}".format(cost_time))
