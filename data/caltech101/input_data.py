@@ -12,7 +12,7 @@ from deepclothing.util import config_utils
 
 train_mean = 132
 
-rgb_mean = [139.09414673, 132.65591431, 124.21406555]
+rgb_mean = [138.89532471, 134.29100037, 127.65122223]
 
 train_variance = 6979.9
 
@@ -101,7 +101,6 @@ class InputData(object):
     def test_batch(self, name="train"):
         np.set_printoptions(threshold=np.inf)
         batch_size = 32
-        category_list = self.get_category_list()
         batch_tensor = get_tenosr_data(name, batch_size=batch_size, is_shuffle=False)
         with tf.Session() as sess:
             for i in range(101):
@@ -129,8 +128,8 @@ def main():
     # pr.get_mean_with_plt(json_name="prediction_train.json")
     # pr.get_mean_with_tf(json_name="prediction_train.json")
     # pr.get_json_list(json_name="prediction_train.json")
-    # input_data.get_mean()
-    input_data.test_batch("val")
+    input_data.get_mean()
+    # input_data.test_batch("val")
     print("cost time {}".format(time.time() - start))
 
 if __name__ == '__main__':

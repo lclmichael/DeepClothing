@@ -36,14 +36,28 @@ class JsonDataTools(object):
                 json_data = {"id":image_index,
                              "categoryNum":category_index,
                              "path":os.path.join(category_name, file_name)}
-                if train_count_list[category_index] < 30:
+                if image_index % 3 != 0 and image_index >= 0:
                     json_train_list.append(json_data)
                     train_count_list[category_index] += 1
-                elif val_count_list[category_index] < 50:
+                else:
                     val_count_list[category_index] += 1
                     json_val_list.append(json_data)
 
                 json_all_list.append(json_data)
+            # for file_name in files:
+            #     image_index += 1
+            #     single_count += 1
+            #     json_data = {"id":image_index,
+            #                  "categoryNum":category_index,
+            #                  "path":os.path.join(category_name, file_name)}
+            #     if train_count_list[category_index] < 30:
+            #         json_train_list.append(json_data)
+            #         train_count_list[category_index] += 1
+            #     elif val_count_list[category_index] < 50:
+            #         val_count_list[category_index] += 1
+            #         json_val_list.append(json_data)
+            #
+            #     json_all_list.append(json_data)
 
         print("count num. all:{}, train:{}, val:{}, category_num:{}".
               format(len(json_all_list), len(json_train_list), len(json_val_list), len(category_list)))
