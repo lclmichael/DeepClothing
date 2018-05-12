@@ -70,7 +70,7 @@ def train(lr=0.001,
                     total_loss += loss
                     total_acc += acc
                 cost_time = time.time() - start_time
-                print(val_iter, total_loss, total_acc)
+                # print(val_iter, total_loss, total_acc)
                 print_result("val", i, total_loss / val_iter, total_acc / val_iter, cost_time)
                 start_time = time.time()
 
