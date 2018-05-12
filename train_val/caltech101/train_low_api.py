@@ -29,7 +29,7 @@ def train(lr=0.001,
     accuracy_tensor = model.accuracy
 
     train_data_tensor = input_data.get_tenosr_data("train", batch_size=train_batch_size, is_shuffle=True)
-    val_data_tensor = input_data.get_tenosr_data("train", batch_size=val_batch_size, is_shuffle=False)
+    val_data_tensor = input_data.get_tenosr_data("val", batch_size=val_batch_size, is_shuffle=False)
 
     val_iter = int(val_data_len // val_batch_size)
     config = tf.ConfigProto()
