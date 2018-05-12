@@ -3,12 +3,15 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimage
+from PIL import Image
+
 
 from scipy import misc
 
 def read_from_file(file_path):
-    return mpimage.imread(file_path)
+    image = Image.open(file_path)
+    image = image.convert("RGB")
+    return np.array(image)
 
 def show_image(img, num=0):
     plt.figure(num)
