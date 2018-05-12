@@ -34,9 +34,9 @@ def predict(image_path):
         saver.restore(sess, saver_name)
         very_beginning = time.time()
         result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})
-        result_index = np.argmax(result, 1)
+        result_index = np.argmax(result, 1)[0]
 
-        print(result_index[0], category_list, category_list[result_index[0]])
+        print(result_index, result[0][result_index], category_list[result_index])
         print(result)
         cost_time = time.time() - very_beginning
         print("predict cost time {:.2f}".format(cost_time))
