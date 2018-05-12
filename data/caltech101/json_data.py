@@ -68,7 +68,7 @@ class JsonDataTools(object):
             label_list.append(_data["categoryNum"])
         return path_list, label_list
 
-    def get_category_list(self, json_name="category.json"):
+    def get_category_list(self, json_name):
         return self.get_json(json_name)
 
 json_data_tools = JsonDataTools()
@@ -76,7 +76,7 @@ json_data_tools = JsonDataTools()
 def get_json(json_name):
     return json_data_tools.get_json(json_name)
 
-def get_category_list(json_name):
+def get_category_list(json_name="category.json"):
     return json_data_tools.get_category_list(json_name)
 
 #计算每个类别图像数量

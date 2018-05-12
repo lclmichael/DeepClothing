@@ -7,8 +7,10 @@ import argparse
 import numpy as np
 import tensorflow as tf
 
-from deepclothing.model.low_api_vgg16 import LowApiVGG16
 import deepclothing.util.image_utils as image_utils
+import deepclothing.data.caltech101.json_data as json_data
+from deepclothing.model.low_api_vgg16 import LowApiVGG16
+
 
 output_size = 101
 
@@ -22,6 +24,7 @@ def predict(image_path):
     saver_name = "./saver/low.ckpt"
     img = image_utils.process_image(image_path, (224, 224), rgb_mean)
 
+    category_list = json_data.get_category_list()
     model = LowApiVGG16(output_size=output_size)
     prediction_tensor  = model.y
     config = tf.ConfigProto()
@@ -31,7 +34,9 @@ def predict(image_path):
         saver.restore(sess, saver_name)
         very_beginning = time.time()
         result = sess.run(prediction_tensor, feed_dict={model.x:[img], model.is_train:False})
-        print(np.argmax(result, 1))
+        result_index = np.argmax(result, 1)
+
+        print(result_index, category_list[result_index])
         print(result)
         cost_time = time.time() - very_beginning
         print("predict cost time {:.2f}".format(cost_time))
