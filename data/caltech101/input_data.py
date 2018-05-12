@@ -12,7 +12,10 @@ from deepclothing.util import config_utils
 
 train_mean = 132
 
-rgb_mean = [138.89532471, 134.29100037, 127.65122223]
+# on linux
+rgb_mean = [137.62825012, 134.56352234, 126.72592163]
+# on windows
+# rgb_mean = [138.89532471, 134.29100037, 127.65122223]
 
 train_variance = 6979.9
 
