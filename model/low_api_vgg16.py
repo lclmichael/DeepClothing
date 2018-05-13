@@ -78,8 +78,8 @@ class LowApiVGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=self.stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        fc1 = fc_layer(pool5, 4096, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
-        fc2 = fc_layer(fc1, 4096, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
+        fc1 = fc_layer(pool5, 1024, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
+        fc2 = fc_layer(fc1, 1024, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
         logits = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
