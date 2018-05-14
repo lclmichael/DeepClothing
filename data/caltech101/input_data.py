@@ -34,7 +34,7 @@ def image_preprocess(path, label):
     xx = tf.cast(tf.div(width - min_edge, 2), tf.int32)
     image = tf.image.crop_to_bounding_box(image, yy, xx, min_edge, min_edge)
     image = tf.subtract(image, rgb_mean)
-    image = tf.image.resize_images(image, [512, 512])
+    image = tf.image.resize_images(image, [224, 224])
     label = tf.one_hot(label, 101)
     return image, label
 
