@@ -7,6 +7,7 @@ import numpy as np
 
 from deepclothing.util import json_utils
 from deepclothing.util import config_utils
+import deepclothing.util.image_utils as image_utils
 
 class JsonDataTools(object):
 
@@ -23,6 +24,7 @@ class JsonDataTools(object):
         val_count_list = [0 for x in range(101)]
         image_index = -1
         category_index = -1
+        print("prepare content:")
         for root, dirs, files in os.walk(self._data_root_dir, topdown=True):
             category_name = os.path.split(root)[1]
             if category_name == "101_ObjectCategories" or category_name == "BACKGROUND_Google":
@@ -33,8 +35,11 @@ class JsonDataTools(object):
             for file_name in files:
                 image_index += 1
                 single_count += 1
+                file_path = os.path.join(root, file_name)
+                size = image_utils.get_image_size(file_path)
                 json_data = {"id":image_index,
                              "categoryNum":category_index,
+                             "size":size,
                              "path":os.path.join(category_name, file_name)}
                 if image_index % 3 != 0 and image_index >= 0:
                     json_train_list.append(json_data)
@@ -44,6 +49,9 @@ class JsonDataTools(object):
                     json_val_list.append(json_data)
 
                 json_all_list.append(json_data)
+
+                print("\r" + "done for {}".format(image_index), end="")
+
             # for file_name in files:
             #     image_index += 1
             #     single_count += 1
@@ -58,8 +66,7 @@ class JsonDataTools(object):
             #         json_val_list.append(json_data)
             #
             #     json_all_list.append(json_data)
-
-        print("count num. all:{}, train:{}, val:{}, category_num:{}".
+        print("\n" + "count num. all:{}, train:{}, val:{}, category_num:{}".
               format(len(json_all_list), len(json_train_list), len(json_val_list), len(category_list)))
 
         json_utils.write_json_file(category_list, self._json_dir, "category.json")
@@ -76,7 +83,6 @@ class JsonDataTools(object):
             np.random.shuffle(json_data)
         path_list = []
         label_list = []
-
         for _data in json_data:
             path_list.append(os.path.join(self._data_root_dir, _data["path"]))
             label_list.append(_data["categoryNum"])

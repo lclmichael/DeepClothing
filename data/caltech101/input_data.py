@@ -22,12 +22,17 @@ train_variance = 6979.9
 def image_preprocess(path, label):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
-    # image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     image = tf.cast(image, dtype=tf.float32)
+    #central crop
+    shape = tf.shape(image)[:2]
+    min_edge = tf.reduce_min(shape)
+    height = tf.reduce_mean(tf.gather_nd(shape, [0]))
+    width = tf.reduce_mean(tf.gather_nd(shape, [1]))
+    yy = tf.cast(tf.div(height - min_edge, 2), tf.int32)
+    xx = tf.cast(tf.div(width - min_edge, 2), tf.int32)
+    image = tf.image.crop_to_bounding_box(image, yy, xx, min_edge, min_edge)
     image = tf.subtract(image, rgb_mean)
-    image = tf.image.resize_images(image, [224, 224])
-    # image = tf.image.per_image_standardization(image)
-    # image = tf.div(image, tf.sqrt(train_variance))
+    image = tf.image.resize_images(image, [512, 512])
     label = tf.one_hot(label, 101)
     return image, label
 
@@ -35,8 +40,14 @@ def mean_preprocess(path):
     image = tf.read_file(path)
     image = tf.image.decode_jpeg(image, channels=3)
     image = tf.cast(image, tf.float32)
-    # image = tf.image.resize_images(image, [224, 224])
-    # mean, variance = tf.nn.moments(image, [0, 1, 2])
+    # central crop
+    shape = tf.shape(image)[:2]
+    min_edge = tf.reduce_min(shape)
+    height = tf.reduce_mean(tf.gather_nd(shape, [0]))
+    width = tf.reduce_mean(tf.gather_nd(shape, [1]))
+    yy = tf.cast(tf.div(height - min_edge, 2), tf.int32)
+    xx = tf.cast(tf.div(width - min_edge, 2), tf.int32)
+    image = tf.image.crop_to_bounding_box(image, yy, xx, min_edge, min_edge)
     mean, variance = tf.nn.moments(image, [0, 1])
     return mean
 
