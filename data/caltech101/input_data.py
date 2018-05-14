@@ -19,6 +19,8 @@ rgb_mean = [ 135.94625854, 131.7210083,123.35960388]
 # on windows
 # rgb_mean = [138.89532471, 134.29100037, 127.65122223]
 
+IMAGE_SIZE = 200
+
 train_variance = 6979.9
 
 def image_preprocess(path, label):
@@ -34,7 +36,7 @@ def image_preprocess(path, label):
     xx = tf.cast(tf.div(width - min_edge, 2), tf.int32)
     image = tf.image.crop_to_bounding_box(image, yy, xx, min_edge, min_edge)
     image = tf.subtract(image, rgb_mean)
-    image = tf.image.resize_images(image, [224, 224])
+    image = tf.image.resize_images(image, [IMAGE_SIZE, IMAGE_SIZE])
     label = tf.one_hot(label, 101)
     return image, label
 

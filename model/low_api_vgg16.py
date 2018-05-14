@@ -7,7 +7,6 @@ import argparse
 
 import tensorflow as tf
 
-
 # filter, fully-connector layer weight
 def get_weight(shape, stddev=1e-2, name="weight"):
     return tf.Variable(tf.truncated_normal(shape, stddev=stddev), dtype=tf.float32, name=name)
@@ -47,11 +46,11 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
 
 class LowApiVGG16(object):
 
-    def __init__(self, output_size, lr=1e-2, stddev=1e-2):
+    def __init__(self, output_size, lr=1e-2, stddev=1e-2, image_size=224):
         self.lr = lr
         self.stddev = stddev
         self._output_size = output_size
-        self.x = tf.placeholder(dtype=tf.float32, shape=[None, 224, 224, 3])
+        self.x = tf.placeholder(dtype=tf.float32, shape=[None, image_size, image_size, 3])
         self.y_truth = tf.placeholder(dtype=tf.float32, shape=[None, self._output_size])
         self.is_train = tf.placeholder(dtype=tf.bool, name="is_train")
 
@@ -78,9 +77,9 @@ class LowApiVGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=self.stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        # fc1 = fc_layer(pool5, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
-        # fc2 = fc_layer(fc1, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
-        logits = fc_layer(pool5, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
+        fc1 = fc_layer(pool5, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
+        fc2 = fc_layer(fc1, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
+        logits = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
         self.loss = tf.reduce_mean(cross_entropy)

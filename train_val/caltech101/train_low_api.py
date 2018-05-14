@@ -11,7 +11,9 @@ from deepclothing.model.low_api_vgg16 import LowApiVGG16
 
 output_size = 101
 
-val_data_len = 2945
+val_data_len = 2893
+
+IMAGE_SIZE = 200
 
 def train(lr=0.001,
           stddev=0.001,
@@ -23,7 +25,7 @@ def train(lr=0.001,
 
     saver_name = "./saver/low.ckpt"
 
-    model = LowApiVGG16(output_size=output_size, lr=lr, stddev=stddev)
+    model = LowApiVGG16(output_size=output_size, lr=lr, stddev=stddev, image_size=IMAGE_SIZE)
     train_step_tensor = model.train_step
     loss_tensor = model.loss
     accuracy_tensor = model.accuracy
