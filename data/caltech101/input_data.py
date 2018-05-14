@@ -13,7 +13,9 @@ from deepclothing.util import config_utils
 train_mean = 132
 
 # on linux
-rgb_mean = [137.62825012, 134.56352234, 126.72592163]
+# rgb_mean = [137.62825012, 134.56352234, 126.72592163]
+# central crop
+rgb_mean = [ 135.94625854, 131.7210083,123.35960388]
 # on windows
 # rgb_mean = [138.89532471, 134.29100037, 127.65122223]
 
