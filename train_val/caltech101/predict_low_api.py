@@ -1,6 +1,7 @@
 # encoding=utf8
 # Author=LclMichael
 
+import os
 import time
 import argparse
 
@@ -19,7 +20,7 @@ val_data_len = 2945
 rgb_mean = [139.09414673, 132.65591431, 124.21406555]
 
 def predict(image_path):
-
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
     saver_name = "./saver/low.ckpt"
     img = image_utils.process_image(image_path, (224, 224), rgb_mean)
 
