@@ -7,6 +7,7 @@ import argparse
 import tensorflow as tf
 
 import deepclothing.data.caltech101.input_data as input_data
+import deepclothing.util.image_utils as image_utils
 from deepclothing.model.low_api_vgg16 import LowApiVGG16
 
 output_size = 101
@@ -37,22 +38,22 @@ def train(lr=0.001,
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
-
         tf.global_variables_initializer().run()
         saver = tf.train.Saver(var_list=tf.global_variables(), max_to_keep=1)
         very_beginning = time.time()
         start_time = very_beginning
         for i in range(max_iter):
-            train_batch = sess.run(train_data_tensor)
+            train_paths, train_labels = sess.run(train_data_tensor)
+            train_images = image_utils.process_images(train_paths, (IMAGE_SIZE, IMAGE_SIZE), input_data.rgb_mean)
             sess.run(train_step_tensor,
-                     feed_dict={model.x: train_batch[0],
-                                model.y_truth: train_batch[1],
+                     feed_dict={model.x: train_images,
+                                model.y_truth: train_labels,
                                 model.is_train: True})
 
             if i % print_interval == 0 and i > 0:
                 loss, acc = sess.run([loss_tensor, accuracy_tensor],
-                                     feed_dict={model.x: train_batch[0],
-                                                model.y_truth: train_batch[1],
+                                     feed_dict={model.x: train_images,
+                                                model.y_truth: train_labels,
                                                 model.is_train: False})
                 cost_time = time.time() - start_time
                 print_result("train", i, loss, acc, cost_time)
@@ -65,10 +66,11 @@ def train(lr=0.001,
                 total_loss = 0
                 total_acc = 0
                 for j in range(val_iter):
-                    val_batch = sess.run(val_data_tensor)
+                    val_paths, val_labels = sess.run(val_data_tensor)
+                    val_images = image_utils.process_images(train_paths, (IMAGE_SIZE, IMAGE_SIZE), input_data.rgb_mean)
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
-                                         feed_dict={model.x: val_batch[0],
-                                                    model.y_truth: val_batch[1],
+                                         feed_dict={model.x: val_images,
+                                                    model.y_truth: val_labels,
                                                     model.is_train: False})
                     total_loss += loss
                     total_acc += acc

@@ -56,5 +56,11 @@ def process_image(path, new_size, mean, is_crop=True):
 
     return img
 
+def process_images(paths, new_size, mean, is_crop=True):
+    image_list = []
+    for path in paths:
+        image_list.append(process_image(path, new_size, mean, is_crop))
+
+    return image_list
 
 

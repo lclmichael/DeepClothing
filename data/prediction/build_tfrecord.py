@@ -83,7 +83,6 @@ class CovertToTFRecord(object):
                     image_batch_run, label_batch_run = sess.run([image_batch, label_batch])
                     for i in range(batch_size):
                         image_raw = image_batch_run[i].tostring()
-                        tf.losses.add_loss()
                         example = tf.train.Example(
                              features=tf.train.Features(
                                  feature={
