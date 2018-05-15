@@ -17,7 +17,7 @@ train_mean = 132
 # central crop
 rgb_mean = [ 135.94625854, 131.7210083,123.35960388]
 
-IMAGE_SIZE = 200
+IMAGE_SIZE = 224
 
 train_variance = 6979.9
 

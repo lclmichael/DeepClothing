@@ -13,7 +13,7 @@ output_size = 101
 
 val_data_len = 2893
 
-IMAGE_SIZE = 200
+IMAGE_SIZE = 224
 
 def train(lr=0.001,
           stddev=0.001,

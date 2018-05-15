@@ -15,7 +15,7 @@ from deepclothing.model.low_api_vgg16 import LowApiVGG16
 
 output_size = 101
 
-IMAGE_SIZE = 200
+IMAGE_SIZE = 224
 
 rgb_mean = [ 135.94625854, 131.7210083,123.35960388]
 
