@@ -83,9 +83,10 @@ class LowApiVGG16(object):
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
         self.loss = tf.reduce_mean(cross_entropy)
-        extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        with tf.control_dependencies(extra_update_ops):
-            self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        # extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        # with tf.control_dependencies(extra_update_ops):
+        #     self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.prediction = tf.equal(tf.argmax(self.y, 1), tf.argmax(self.y_truth, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.prediction, tf.float32))
 
