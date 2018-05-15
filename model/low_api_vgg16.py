@@ -1,10 +1,6 @@
 # encoding=utf8
 # Author=LclMichael
 
-import os
-import time
-import argparse
-
 import tensorflow as tf
 
 # filter, fully-connector layer weight
@@ -26,9 +22,10 @@ def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="con
     with tf.variable_scope(name):
         weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
-        # add_bias = tf.nn.bias_add(convd, bias=bias)
-        bn = tf.layers.batch_normalization(convd, training=is_train)
-        relu = tf.nn.relu(bn)
+        bias = get_bias(output_size)
+        logits = tf.nn.bias_add(convd, bias=bias)
+        # bn = tf.layers.batch_normalization(convd, training=is_train)
+        relu = tf.nn.relu(logits)
         return relu
 
 def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_layer"):
@@ -37,12 +34,13 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
         weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
         bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
-        bn = tf.layers.batch_normalization(fc, training=is_train)
+        logits = tf.nn.bias_add(fc, bias)
+        # bn = tf.layers.batch_normalization(fc, training=is_train)
         if is_hidden:
-            relu = tf.nn.relu(bn)
+            relu = tf.nn.relu(logits)
             return relu
-        add_bias = tf.nn.bias_add(fc, bias=bias)
-        return add_bias
+
+        return logits
 
 class LowApiVGG16(object):
 
@@ -78,7 +76,9 @@ class LowApiVGG16(object):
         pool5 = max_pool(conv5_3, "pool5")
 
         fc1 = fc_layer(pool5, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
+        fc1 = tf.layers.dropout(fc1, training=self.is_train)
         fc2 = fc_layer(fc1, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
+        fc2 = tf.layers.dropout(fc2, training=self.is_train)
         logits = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
