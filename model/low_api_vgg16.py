@@ -66,14 +66,19 @@ class LowApiVGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=self.stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        logits = fc_layer(pool5, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
+        logits = fc_layer(pool5,
+                          self._output_size,
+                          is_hidden=False,
+                          is_train=self.is_train,
+                          stddev=self.stddev,
+                          name="fc3")
+
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
         self.loss = tf.reduce_mean(cross_entropy)
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(extra_update_ops):
-            self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
-        self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
+            self.train_step = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
         self.prediction = tf.equal(tf.argmax(self.y, 1), tf.argmax(self.y_truth, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.prediction, tf.float32))
 
