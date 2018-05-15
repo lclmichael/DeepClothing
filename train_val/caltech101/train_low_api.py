@@ -67,7 +67,7 @@ def train(lr=0.001,
                 total_acc = 0
                 for j in range(val_iter):
                     val_paths, val_labels = sess.run(val_data_tensor)
-                    val_images = image_utils.process_images(train_paths, (IMAGE_SIZE, IMAGE_SIZE), input_data.rgb_mean)
+                    val_images = image_utils.process_images(val_paths, (IMAGE_SIZE, IMAGE_SIZE), input_data.rgb_mean)
                     loss, acc = sess.run([loss_tensor, accuracy_tensor],
                                          feed_dict={model.x: val_images,
                                                     model.y_truth: val_labels,
