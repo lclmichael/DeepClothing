@@ -22,7 +22,7 @@ def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="con
     with tf.variable_scope(name):
         weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
-        bias = get_bias(output_size)
+        bias = get_bias([output_size])
         logits = tf.nn.bias_add(convd, bias=bias)
         # bn = tf.layers.batch_normalization(convd, training=is_train)
         relu = tf.nn.relu(logits)
