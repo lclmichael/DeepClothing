@@ -25,7 +25,7 @@ def predict(image_path):
     img = image_utils.process_image(image_path, (IMAGE_SIZE, IMAGE_SIZE), rgb_mean)
 
     category_list = json_data.get_category_list()
-    model = LowApiVGG16(output_size=output_size)
+    model = LowApiVGG16(output_size=output_size, image_size=IMAGE_SIZE)
     prediction_tensor  = model.y
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
