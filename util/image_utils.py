@@ -46,9 +46,7 @@ def process_image(path, new_size, mean, is_crop=True):
     if is_crop:
         width = img.shape[1]
         heigth = img.shape[0]
-        print(width, heigth)
         min_edge = min(width,heigth)
-        print(min_edge)
         xx = int((width - min_edge) / 2.0)
         yy = int((heigth - min_edge) / 2.0)
         img = img[yy : yy + min_edge, xx: xx + min_edge]

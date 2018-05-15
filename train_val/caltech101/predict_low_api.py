@@ -17,7 +17,7 @@ output_size = 101
 
 IMAGE_SIZE = 200
 
-rgb_mean = [139.09414673, 132.65591431, 124.21406555]
+rgb_mean = [ 135.94625854, 131.7210083,123.35960388]
 
 def predict(image_path):
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
