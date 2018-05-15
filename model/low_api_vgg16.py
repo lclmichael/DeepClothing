@@ -31,7 +31,6 @@ def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_lay
         if is_hidden:
             relu = tf.nn.relu(bn)
             return relu
-
         return bn
 
 class LowApiVGG16(object):
@@ -45,7 +44,7 @@ class LowApiVGG16(object):
         self.is_train = tf.placeholder(dtype=tf.bool, name="is_train")
 
         conv1_1 = conv_layer(self.x, 3, 64, self.is_train, stddev=self.stddev, name="conv1_1")
-        conv1_2 = conv_layer(conv1_1, 64, 64, self.is_train, name="conv1_2")
+        conv1_2 = conv_layer(conv1_1, 64, 64, self.is_train, stddev=self.stddev, name="conv1_2")
         pool1 = max_pool(conv1_2, "pool1")
 
         conv2_1 = conv_layer(pool1, 64, 128, self.is_train, stddev=self.stddev, name="conv2_1")
