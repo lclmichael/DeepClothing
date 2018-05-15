@@ -7,9 +7,6 @@ import tensorflow as tf
 def get_weight(shape, stddev=1e-2, name="weight"):
     return tf.Variable(tf.truncated_normal(shape, stddev=stddev), dtype=tf.float32, name=name)
 
-def get_bias(shape):
-    return tf.Variable(tf.constant(0.1, shape=shape, name="bias"))
-
 def max_pool(bottom, name):
     return tf.nn.max_pool(bottom,
                           ksize=[1, 2, 2, 1],
@@ -17,30 +14,25 @@ def max_pool(bottom, name):
                           padding="SAME",
                           name=name)
 
-
 def conv_layer(bottom, input_size, output_size, is_train, stddev=1e-2, name="conv_layer"):
     with tf.variable_scope(name):
         weight = get_weight([3, 3, input_size, output_size], stddev=stddev, name="filter")
         convd = tf.nn.conv2d(bottom, weight, strides=[1, 1, 1, 1], padding="SAME")
-        bias = get_bias([output_size])
-        logits = tf.nn.bias_add(convd, bias=bias)
-        # bn = tf.layers.batch_normalization(convd, training=is_train)
-        relu = tf.nn.relu(logits)
+        bn = tf.layers.batch_normalization(convd, training=is_train)
+        relu = tf.nn.relu(bn)
         return relu
 
 def fc_layer(bottom, output_size, is_hidden, is_train, stddev=1e-2, name="fc_layer"):
     with tf.variable_scope(name):
         flatten = tf.layers.flatten(bottom)
         weight = get_weight([flatten.get_shape().as_list()[1], output_size], stddev=stddev, name="weight")
-        bias = get_bias([output_size])
         fc = tf.matmul(flatten, weight)
-        logits = tf.nn.bias_add(fc, bias)
-        # bn = tf.layers.batch_normalization(fc, training=is_train)
+        bn = tf.layers.batch_normalization(fc, training=is_train)
         if is_hidden:
-            relu = tf.nn.relu(logits)
+            relu = tf.nn.relu(bn)
             return relu
 
-        return logits
+        return bn
 
 class LowApiVGG16(object):
 
@@ -75,17 +67,13 @@ class LowApiVGG16(object):
         conv5_3 = conv_layer(conv5_2, 512, 512, self.is_train, stddev=self.stddev, name="conv5_3")
         pool5 = max_pool(conv5_3, "pool5")
 
-        fc1 = fc_layer(pool5, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc1")
-        fc1 = tf.layers.dropout(fc1, training=self.is_train)
-        fc2 = fc_layer(fc1, 256, is_hidden=True, is_train=self.is_train, stddev=self.stddev, name="fc2")
-        fc2 = tf.layers.dropout(fc2, training=self.is_train)
-        logits = fc_layer(fc2, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
+        logits = fc_layer(pool5, self._output_size, is_hidden=False, is_train=self.is_train, stddev=self.stddev, name="fc3")
         self.y = tf.nn.softmax(logits)
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.y_truth, logits=logits)
         self.loss = tf.reduce_mean(cross_entropy)
-        # extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        # with tf.control_dependencies(extra_update_ops):
-        #     self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
+        extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        with tf.control_dependencies(extra_update_ops):
+            self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.train_step = tf.train.AdamOptimizer(lr).minimize(self.loss)
         self.prediction = tf.equal(tf.argmax(self.y, 1), tf.argmax(self.y_truth, 1))
         self.accuracy = tf.reduce_mean(tf.cast(self.prediction, tf.float32))
