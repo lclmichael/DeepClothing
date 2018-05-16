@@ -12,7 +12,7 @@ from deepclothing.model.low_api_vgg16 import LowApiVGG16
 
 output_size = 101
 
-val_data_len = 2893
+val_data_len = 868
 
 IMAGE_SIZE = 224
 
