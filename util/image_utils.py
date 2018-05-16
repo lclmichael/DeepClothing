@@ -37,9 +37,14 @@ def crop_image(img, y1, x1, y2, x2):
 
 #获取单张图片均值
 def get_image_mean(img):
-    img = np.array(img)
     return np.mean(img.flatten())
 
+def get_images_mean(paths):
+    all_mean = [0, 0, 0]
+    for path in paths:
+        image = read_from_file(path)
+        all_mean += get_image_mean(image)
+    return all_mean / len(paths)
 
 def process_image(path, new_size, mean, is_crop=True):
     img = read_from_file(path)

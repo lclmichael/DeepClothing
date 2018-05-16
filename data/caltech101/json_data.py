@@ -108,7 +108,6 @@ def calc_all(json_name):
     print(np.sum(count_list))
     print(count_list)
 
-
 def main():
     jdt = JsonDataTools()
     jdt.build_json_file()

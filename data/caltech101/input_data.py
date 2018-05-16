@@ -78,7 +78,7 @@ class InputData(object):
         iterator = dataset.make_one_shot_iterator()
         return iterator.get_next()
 
-    def get_mean(self, json_name="train.json"):
+    def get_mean(self, json_name="all.json"):
         datas = self.json_data_tools.get_data_list(json_name)
         batch_tensor = self.get_iterator(datas[0], batch_size=1, num_epochs=1, preprocess=mean_preprocess)
         data_len = len(datas[0])
