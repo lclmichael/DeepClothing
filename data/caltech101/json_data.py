@@ -41,7 +41,7 @@ class JsonDataTools(object):
                              "categoryNum":category_index,
                              "size":size,
                              "path":os.path.join(category_name, file_name)}
-                if image_index % 3 != 0 and image_index >= 0:
+                if image_index % 10 != 0 and image_index >= 0:
                     json_train_list.append(json_data)
                     train_count_list[category_index] += 1
                 else:
